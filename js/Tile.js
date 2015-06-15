@@ -19,6 +19,6 @@ Tile.prototype.render = function render(ctx, forceRedraw){
     ctx.drawImage(this.img,
         this.x,
         this.y);
-    //ctx.fillStyle = "#f0f0f0";
-    //ctx.fillText(this.r + "," + this.c, this.x + this.w / 2, this.y + this.h);
+        ctx.fillStyle = "#f0f0f0";
+        ctx.fillText(this.r + "," + this.c, this.x + this.w / 2, this.y + this.h);
 };

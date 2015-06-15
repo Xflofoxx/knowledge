@@ -20,7 +20,7 @@ var GameStage = function GameStage(AM, IO, settings) {
     Stage.call(this, "game", {
         assets: assetsArray,
         settings: settings,
-        people : []
+        people: []
     }, AM, IO);
     this.LOG_TAG = "GameStage:";
 
@@ -29,10 +29,11 @@ var GameStage = function GameStage(AM, IO, settings) {
         tiles: [],
         tileWidth: 64,
         tileHeight: 32,
-        w: 20,
-        h: 20,
-        row: 0,
-        col: 0
+        w: 2000,
+        h: 2000,
+        srow: 0,
+        scol: 0,
+        scroll: {x: 0, y: 0}
     };
 };
 utils.inherit(GameStage, Stage);
@@ -46,8 +47,8 @@ GameStage.prototype.registerObjects = function registerObjects() {
         for (col = 0; col < this.world.w; col++) {
             //this.world.tiles[row][col] = new Tile(row, col, 0,0, this.world.tileWidth, this.world.tileHeight,
             //    this.AM.bundle.game[this.config.assets[Math.floor(Math.random() * this.config.assets.length)].id]);
-            this.world.tiles[row][col] = new Tile(row, col, 0,0, this.world.tileWidth, this.world.tileHeight,
-                this.AM.bundle.game[this.config.assets[utils.tileMap[row][col]].id]);
+            this.world.tiles[row][col] = new Tile(row, col, 0, 0, this.world.tileWidth, this.world.tileHeight,
+                this.AM.bundle.game[this.config.assets[Math.floor(Math.random() * this.config.assets.length)].id]);
         }
     }
 
@@ -63,53 +64,43 @@ GameStage.prototype.update = function update(time) {
     return 16;
 };
 GameStage.prototype.render = function render(ctx, forceRedraw) {
-    var row, col, tileRow,tile, sliceD, viewport, x, y, w, h, centerX,centerY, s, sprite;
+    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, centerX, centerY, s, sprite;
+    //var rowCount, colCount;
     ctx.strokeColor = "#f0f0f0";
     ctx.lineWidth = 1;
     //calculates the viewport
     //TODO: change the last index with the tile num
     viewport = {
-        rows: 19,
-        cols: 19
+        rows: 0,
+        cols: 0
     };
 
+    this.world.srow = Math.floor(this.world.scroll.x / this.world.tileWidth);
+    this.world.scol = Math.floor(this.world.scroll.y / this.world.tileHeight);
+    viewport.rows = this.world.srow + Math.floor(ctx.canvas.width / this.world.tileWidth) + 1;
+    viewport.cols = this.world.scol + Math.floor(ctx.canvas.height / this.world.tileHeight) + 1;
 
-    centerX = (ctx.canvas.width-(viewport.cols/2 * (this.world.tileWidth+ this.world.tileWidth)))/2;
-    centerY = ctx.canvas.height/2;
 
-    if(!this.world.rendered || forceRedraw) {
-        ctx.fillStyle="#000000";
-        ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
-        ctx.font = "normal 8px Verdana";
-        ctx.textAlign = "center";
-        ctx.baseline = "middle";
-        for (row = 0; row < viewport.rows; row++) {
-            x = centerX + (row * this.world.tileWidth / 2);
-            y = centerY + (row * this.world.tileHeight / 2);
-            for (col = viewport.cols; col >= 0; col--) {
-                tile = this.world.tiles[row][col];
-                tile.x = centerX + (col * this.world.tileWidth / 2) + (row * this.world.tileWidth / 2);
-                tile.y = centerY + (row * this.world.tileHeight / 2) - (col * this.world.tileHeight / 2);
-                tile.render(ctx);
-            }
+    centerX = ctx.canvas.width / 2 - this.world.tileWidth / 2;
+    centerY = 0; //ctx.canvas.height / 2;
 
+    //if(!this.world.rendered || forceRedraw) {
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.font = "normal 8px Verdana";
+    ctx.textAlign = "center";
+    ctx.baseline = "middle";
+    for (col = this.world.scol; col < viewport.cols; col++) {
+        for (row = this.world.srow; row < viewport.rows; row++) {
+            tile = this.world.tiles[row][col];
+            tile.x = centerX + (col - row) * this.world.tileHeight;
+            tile.y = centerY + (row + col) * this.world.tileHeight / 2;
+            tile.render(ctx);
         }
-        this.world.rendered = true;
-    }
 
-    for(s = 0;s < this.config.people.length; s++){
-        sprite = this.config.people[s];
-        ctx.fillStyle="goldenrod";
-        ctx.strokeStyle="white";
-        ctx.beginPath();
-        ctx.moveTo(centerX + (sprite.c * this.world.tileWidth / 2) + (sprite.r * this.world.tileWidth / 2), centerY + (sprite.r * this.world.tileHeight / 2) - (sprite.c * this.world.tileHeight / 2));
-        ctx.lineTo(100,100);
-        //sprite.x = centerX + (sprite.c * this.world.tileWidth / 2) + (sprite.r * this.world.tileWidth / 2);
-        //sprite.y = centerY + (sprite.r * this.world.tileHeight / 2) - (sprite.c * this.world.tileHeight / 2);
-        //ctx.fillRect(sprite.x, sprite.y, this.world.tileWidth, this.world.tileHeight);
-        ctx.stroke();
     }
-
+    //this.world.rendered = true;
+    //}
 
     return ctx;
 };
@@ -119,6 +110,9 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
 GameStage.prototype.mouseMoveHandler = function (status) {
     var self = this;
     var btn, b, hit;
+    if(status.mouse.isDragging){
+        console.log(this.LOG_TAG+" is dragging!!!");
+    }
     //for (b = 0; b < self.config.buttons.length; b++) {
     //    btn = self.config.buttons[b];
     //    if (btn.size) {
@@ -143,4 +137,12 @@ GameStage.prototype.mouseMoveHandler = function (status) {
     document.body.style.cursor = "default";
     //}
 };
+//GameStage.prototype.mouseDownHandler = function (status) {
+//    var self = this;
+//    var gridOffsetY = this.world.h;
+//    var gridOffsetX = this.world.w;
+//
+//    gridOffsetX += ()
+//};
+
 //</editor-fold>
