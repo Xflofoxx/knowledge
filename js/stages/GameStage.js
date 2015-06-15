@@ -19,7 +19,8 @@ var GameStage = function GameStage(AM, IO, settings) {
 
     Stage.call(this, "game", {
         assets: assetsArray,
-        settings: settings
+        settings: settings,
+        people : []
     }, AM, IO);
     this.LOG_TAG = "GameStage:";
 
@@ -28,8 +29,8 @@ var GameStage = function GameStage(AM, IO, settings) {
         tiles: [],
         tileWidth: 64,
         tileHeight: 32,
-        w: 200,
-        h: 200,
+        w: 20,
+        h: 20,
         row: 0,
         col: 0
     };
@@ -39,38 +40,39 @@ GameStage.prototype.registerObjects = function registerObjects() {
     var row, col;
     Stage.prototype.registerObjects.call(this);
     //prepare the world
+
     for (row = 0; row < this.world.h; row++) {
         this.world.tiles[row] = this.world.tiles[row] || [];
         for (col = 0; col < this.world.w; col++) {
-            //this.world.tiles[row][col]= {
-            //r: row,
-            //c: col,
-            //x: this.world.tileWidth * (col),
-            //y: this.world.tileHeight * (row),
-            //w: this.world.tileWidth,
-            //h: this.world.tileHeight,
-            //z: 0,
-            //type: tileTypes[Math.floor(Math.random()*tileTypes.length)]
-            //};
-            this.world.tiles[row][col] = this.config.assets[Math.floor(Math.random() * this.config.assets.length)].id;
+            //this.world.tiles[row][col] = new Tile(row, col, 0,0, this.world.tileWidth, this.world.tileHeight,
+            //    this.AM.bundle.game[this.config.assets[Math.floor(Math.random() * this.config.assets.length)].id]);
+            this.world.tiles[row][col] = new Tile(row, col, 0,0, this.world.tileWidth, this.world.tileHeight,
+                this.AM.bundle.game[this.config.assets[utils.tileMap[row][col]].id]);
         }
     }
+
+    this.config.people.push({
+        name: "firstMan",
+        sex: "m",
+        r: 0,
+        c: 0
+    });
 };
 GameStage.prototype.update = function update(time) {
     //console.log(this.LOG_TAG + " update");
     return 16;
 };
 GameStage.prototype.render = function render(ctx, forceRedraw) {
-    var row, col, tileRow,tile, sliceD, viewport, x, y, w, h, centerX,centerY;
+    var row, col, tileRow,tile, sliceD, viewport, x, y, w, h, centerX,centerY, s, sprite;
     ctx.strokeColor = "#f0f0f0";
     ctx.lineWidth = 1;
     //calculates the viewport
+    //TODO: change the last index with the tile num
     viewport = {
-        rows: 15,
-        cols: 15
+        rows: 19,
+        cols: 19
     };
-    w = this.world.tileWidth;
-    h = this.world.tileHeight;
+
 
     centerX = (ctx.canvas.width-(viewport.cols/2 * (this.world.tileWidth+ this.world.tileWidth)))/2;
     centerY = ctx.canvas.height/2;
@@ -86,19 +88,29 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
             y = centerY + (row * this.world.tileHeight / 2);
             for (col = viewport.cols; col >= 0; col--) {
                 tile = this.world.tiles[row][col];
-                x = centerX + (col * this.world.tileWidth / 2) + (row * this.world.tileWidth / 2);
-                y = centerY + (row * this.world.tileHeight / 2) - (col * this.world.tileHeight / 2);
-
-                ctx.drawImage(this.AM.bundle.game[tile],
-                    x,
-                    y);
-                ctx.fillStyle = "#f0f0f0";
-                ctx.fillText(row + "," + col, x + w / 2, y + h);
+                tile.x = centerX + (col * this.world.tileWidth / 2) + (row * this.world.tileWidth / 2);
+                tile.y = centerY + (row * this.world.tileHeight / 2) - (col * this.world.tileHeight / 2);
+                tile.render(ctx);
             }
 
         }
         this.world.rendered = true;
     }
+
+    for(s = 0;s < this.config.people.length; s++){
+        sprite = this.config.people[s];
+        ctx.fillStyle="goldenrod";
+        ctx.strokeStyle="white";
+        ctx.beginPath();
+        ctx.moveTo(centerX + (sprite.c * this.world.tileWidth / 2) + (sprite.r * this.world.tileWidth / 2), centerY + (sprite.r * this.world.tileHeight / 2) - (sprite.c * this.world.tileHeight / 2));
+        ctx.lineTo(100,100);
+        //sprite.x = centerX + (sprite.c * this.world.tileWidth / 2) + (sprite.r * this.world.tileWidth / 2);
+        //sprite.y = centerY + (sprite.r * this.world.tileHeight / 2) - (sprite.c * this.world.tileHeight / 2);
+        //ctx.fillRect(sprite.x, sprite.y, this.world.tileWidth, this.world.tileHeight);
+        ctx.stroke();
+    }
+
+
     return ctx;
 };
 

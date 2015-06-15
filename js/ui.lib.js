@@ -165,5 +165,5 @@ var ui = {
                 btnObj.size.w);
             ctx.restore();
         }
-    }
+    },
 };
