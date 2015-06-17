@@ -33,7 +33,14 @@ var GameStage = function GameStage(AM, IO, settings) {
         h: 2000,
         srow: 0,
         scol: 0,
-        scroll: {x: 0, y: 0}
+        scroll: {
+            startX: 0,
+            startY: 0,
+            x:0,
+            y:0,
+            dirX:undefined,
+            dirY:undefined
+        }
     };
 };
 utils.inherit(GameStage, Stage);
@@ -64,7 +71,7 @@ GameStage.prototype.update = function update(time) {
     return 16;
 };
 GameStage.prototype.render = function render(ctx, forceRedraw) {
-    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, centerX, centerY, s, sprite;
+    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, centerX, centerY, s, sprite,r,c;
     //var rowCount, colCount;
     ctx.strokeColor = "#f0f0f0";
     ctx.lineWidth = 1;
@@ -77,8 +84,8 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
 
     this.world.srow = Math.floor(this.world.scroll.x / this.world.tileWidth);
     this.world.scol = Math.floor(this.world.scroll.y / this.world.tileHeight);
-    viewport.rows = this.world.srow + Math.floor(ctx.canvas.width / this.world.tileWidth) + 1;
-    viewport.cols = this.world.scol + Math.floor(ctx.canvas.height / this.world.tileHeight) + 1;
+    viewport.rows = Math.floor(ctx.canvas.width / this.world.tileWidth) + 1;
+    viewport.cols = Math.floor(ctx.canvas.height / this.world.tileHeight) + 1;
 
 
     centerX = ctx.canvas.width / 2 - this.world.tileWidth / 2;
@@ -90,9 +97,17 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
     ctx.font = "normal 8px Verdana";
     ctx.textAlign = "center";
     ctx.baseline = "middle";
-    for (col = this.world.scol; col < viewport.cols; col++) {
-        for (row = this.world.srow; row < viewport.rows; row++) {
-            tile = this.world.tiles[row][col];
+    for (col = 0; col < viewport.cols; col++) {
+        c = col - this.world.scol;
+        if(c < 0){
+            c = this.world.w - this.world.scol;
+        }
+        for (row = 0; row < viewport.rows; row++) {
+            r = row - this.world.srow;
+            if(r<0){
+                r =  this.world.h - this.world.srow;
+            }
+            tile = this.world.tiles[r][c];
             tile.x = centerX + (col - row) * this.world.tileHeight;
             tile.y = centerY + (row + col) * this.world.tileHeight / 2;
             tile.render(ctx);
@@ -101,6 +116,13 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
     }
     //this.world.rendered = true;
     //}
+
+    //now render the scrolling line!
+    ctx.strokeStyle= "#ffffff";
+    ctx.beginPath();
+    ctx.moveTo(this.world.scroll.startX, this.world.scroll.startY);
+    ctx.lineTo(this.world.scroll.startX + this.world.scroll.x, this.world.scroll.startY - this.world.scroll.y);
+    ctx.stroke();
 
     return ctx;
 };
@@ -111,7 +133,23 @@ GameStage.prototype.mouseMoveHandler = function (status) {
     var self = this;
     var btn, b, hit;
     if(status.mouse.isDragging){
-        console.log(this.LOG_TAG+" is dragging!!!");
+        this.world.scroll= {
+            startX: status.mouse.mousePos.scrollX,
+            startY: status.mouse.mousePos.scrollY,
+            x: status.mouse.mousePos.deltaX,
+            y: status.mouse.mousePos.deltaY,
+            dirX: status.mouse.mousePos.scrollDirX,
+            dirY:status.mouse.mousePos.scrollDirY
+        }
+    }else {
+        this.world.scroll= {
+            startX: 0,
+            startY: 0,
+            x: 0,
+            y: 0,
+            dirX: 0,
+            dirY: 0
+        }
     }
     //for (b = 0; b < self.config.buttons.length; b++) {
     //    btn = self.config.buttons[b];

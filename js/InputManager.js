@@ -10,7 +10,13 @@ var InputManager = function InputManager(game) {
         x: undefined,
         y: undefined,
         screenX: undefined,
-        screenY: undefined
+        screenY: undefined,
+        scrollX:0,
+        scrollY: 0,
+        deltaX:0,
+        deltaY: 0,
+        scrollDirX:undefined,
+        scrollDirY:undefined
     };
 
     //this is the list of the managed events
@@ -47,6 +53,8 @@ InputManager.prototype.mouseUp = function (event) {
     event.preventDefault();
     this.mouseButtonStatus[event.button] = false;
     this.isDragging = false;
+    this.mousePos.scrollX = 0;
+    this.mousePos.scrollY= 0;
     this.registerMousePosition(event);
     //console.log(this.LOG_TAG+" mouseUp", event.button, this.mouseButtonStatus, this.isDragging, this.mousePos);
     this.emit("mouseup", this.getStatus());
@@ -56,6 +64,9 @@ InputManager.prototype.mouseDown = function (event) {
     this.mouseButtonStatus[event.button] = true;
     this.isDragging = true;
     this.registerMousePosition(event);
+    //fix starting point!
+    this.mousePos.scrollX = this.mousePos.x;
+    this.mousePos.scrollY = this.mousePos.y;
     //console.log(this.LOG_TAG+" mouseDown", event.button, this.mouseButtonStatus, this.isDragging, this.mousePos);
     this.emit("mousedown", this.getStatus());
 };
@@ -63,6 +74,8 @@ InputManager.prototype.mouseWheel = function (evt) {
     if (!evt) evt = event;
     var direction = (evt.detail < 0 || evt.wheelDelta > 0) ? 1 : -1;
     this.isDragging = false;
+    this.mousePos.scrollX = 0;
+    this.mousePos.scrollY= 0;
     // Use the value as you will
     this.mouseWheelDir += direction;
     this.emit("wheel", this.getStatus());
@@ -71,6 +84,29 @@ InputManager.prototype.mouseWheel = function (evt) {
 InputManager.prototype.mouseMove = function (event) {
     event.preventDefault();
     this.registerMousePosition(event);
+    //check to make sure there is data to compare against
+    if (this.isDragging) {
+        //get the change from last position to this position
+        var deltaX = this.mousePos.x - this.mousePos.scrollX,
+            deltaY = this.mousePos.scrollY - this.mousePos.y;
+        this.mousePos.deltaX = deltaX;
+        this.mousePos.deltaY = deltaY;
+        //check which direction had the highest amplitude and then figure out direction by checking if the value is greater or less than zero
+        if (deltaX < 0) {
+            //left
+            this.mousePos.scrollDirX = "left";
+        } else if (deltaX > 0) {
+            //right
+            this.mousePos.scrollDirX = "right";
+        }
+        if (deltaY > 0) {
+            //up
+            this.mousePos.scrollDirY = "up";
+        } else if (deltaY < 0) {
+            //down
+            this.mousePos.scrollDirY = "down";
+        }
+    }
     //console.log(this.LOG_TAG+" mouseMove", event.button, this.mouseButtonStatus, this.isDragging, this.mousePos);
     this.emit("mousemove", this.getStatus());
 };
