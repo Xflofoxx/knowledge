@@ -71,49 +71,68 @@ GameStage.prototype.update = function update(time) {
     return 16;
 };
 GameStage.prototype.render = function render(ctx, forceRedraw) {
-    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, centerX, centerY, s, sprite,r,c;
-    //var rowCount, colCount;
-    ctx.strokeColor = "#f0f0f0";
+    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, s,dc,dr, sprite,r,c;
+    //var rowCount, colCount;   
     ctx.lineWidth = 1;
     //calculates the viewport
     //TODO: change the last index with the tile num
     viewport = {
-        rows: 0,
-        cols: 0
+        rows:  Math.floor(ctx.canvas.height / this.world.tileHeight*2),
+        cols: Math.floor(ctx.canvas.width / this.world.tileWidth)
     };
 
-    this.world.srow = Math.floor(this.world.scroll.x / this.world.tileWidth);
-    this.world.scol = Math.floor(this.world.scroll.y / this.world.tileHeight);
-    viewport.rows = Math.floor(ctx.canvas.width / this.world.tileWidth) + 1;
-    viewport.cols = Math.floor(ctx.canvas.height / this.world.tileHeight) + 1;
+    dc = Math.floor(this.world.scroll.x / this.world.tileWidth);
+    dr = Math.floor(this.world.scroll.y / this.world.tileHeight);
+    this.world.scol += dc;
+    this.world.srow = dr;
 
-
-    centerX = ctx.canvas.width / 2 - this.world.tileWidth / 2;
-    centerY = 0; //ctx.canvas.height / 2;
+    //centerX = ctx.canvas.width / 2 - this.world.tileWidth / 2;
+    //centerY = 0; //ctx.canvas.height / 2;
 
     //if(!this.world.rendered || forceRedraw) {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.font = "normal 8px Verdana";
+    ctx.font = "italic 8px sans";
     ctx.textAlign = "center";
     ctx.baseline = "middle";
-    for (col = 0; col < viewport.cols; col++) {
-        c = col - this.world.scol;
+    for (col = viewport.cols ; col >=0; col--) {
+        c = this.world.scol + col;
         if(c < 0){
-            c = this.world.w - this.world.scol;
+            c = this.world.w + c;
+            this.world.scol += this.world.w;
+        }else if(c === this.world.w){
+            c = 0;            
+            this.world.scol = c;
+        }else if(c > this.world.w){
+            c = c - this.world.w;                 
+            this.world.scol -= this.world.w;
         }
-        for (row = 0; row < viewport.rows; row++) {
-            r = row - this.world.srow;
-            if(r<0){
-                r =  this.world.h - this.world.srow;
-            }
-            tile = this.world.tiles[r][c];
-            tile.x = centerX + (col - row) * this.world.tileHeight;
-            tile.y = centerY + (row + col) * this.world.tileHeight / 2;
+        for (row = 0; row < viewport.rows+1; row++) {
+            tile = this.world.tiles[row][c];
+            tile.x = (row%2) * this.world.tileWidth/2 + col * this.world.tileWidth - this.world.tileHeight;
+            tile.y = row * this.world.tileHeight/2 - this.world.tileHeight;
             tile.render(ctx);
         }
-
     }
+
+
+        //for (col = 0; col < viewport.cols; col++) {
+    //    c = col - this.world.scol;
+    //    if(c < 0){
+    //        c = 0;
+    //    }
+    //    for (row = 0; row < viewport.rows; row++) {
+    //        r = row - this.world.srow;
+    //        if(r<0){
+    //            r = 0;
+    //        }
+    //        tile = this.world.tiles[r][c];
+    //        tile.x = centerX + (col - row) * this.world.tileHeight;
+    //        tile.y = centerY + (row + col) * this.world.tileHeight / 2;
+    //        tile.render(ctx);
+    //    }
+    //
+    //}
     //this.world.rendered = true;
     //}
 

@@ -53,8 +53,12 @@ InputManager.prototype.mouseUp = function (event) {
     event.preventDefault();
     this.mouseButtonStatus[event.button] = false;
     this.isDragging = false;
-    this.mousePos.scrollX = 0;
+    this.mousePos.scrollX=0;
     this.mousePos.scrollY= 0;
+    this.mousePos.deltaX=0;
+    this.mousePos.deltaY= 0;
+    this.mousePos.scrollDirX=undefined;
+    this.mousePos.scrollDirY=undefined;
     this.registerMousePosition(event);
     //console.log(this.LOG_TAG+" mouseUp", event.button, this.mouseButtonStatus, this.isDragging, this.mousePos);
     this.emit("mouseup", this.getStatus());
@@ -67,6 +71,10 @@ InputManager.prototype.mouseDown = function (event) {
     //fix starting point!
     this.mousePos.scrollX = this.mousePos.x;
     this.mousePos.scrollY = this.mousePos.y;
+    this.mousePos.deltaX=0;
+    this.mousePos.deltaY= 0;
+    this.mousePos.scrollDirX=undefined;
+    this.mousePos.scrollDirY=undefined;
     //console.log(this.LOG_TAG+" mouseDown", event.button, this.mouseButtonStatus, this.isDragging, this.mousePos);
     this.emit("mousedown", this.getStatus());
 };
@@ -76,6 +84,8 @@ InputManager.prototype.mouseWheel = function (evt) {
     this.isDragging = false;
     this.mousePos.scrollX = 0;
     this.mousePos.scrollY= 0;
+    this.mousePos.deltaX = 0;
+    this.mousePos.deltaY = 0;
     // Use the value as you will
     this.mouseWheelDir += direction;
     this.emit("wheel", this.getStatus());
@@ -106,6 +116,13 @@ InputManager.prototype.mouseMove = function (event) {
             //down
             this.mousePos.scrollDirY = "down";
         }
+    }else{
+        this.mousePos.scrollX=0;
+        this.mousePos.scrollY= 0;
+        this.mousePos.deltaX=0;
+        this.mousePos.deltaY= 0;
+        this.mousePos.scrollDirX=undefined;
+        this.mousePos.scrollDirY=undefined;
     }
     //console.log(this.LOG_TAG+" mouseMove", event.button, this.mouseButtonStatus, this.isDragging, this.mousePos);
     this.emit("mousemove", this.getStatus());
