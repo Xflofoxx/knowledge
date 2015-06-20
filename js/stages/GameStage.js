@@ -33,15 +33,9 @@ var GameStage = function GameStage(AM, IO, settings) {
         h: 2000,
         srow: 0,
         scol: 0,
-        scroll: {
-            startX: 0,
-            startY: 0,
-            x:0,
-            y:0,
-            dirX:undefined,
-            dirY:undefined
-        }
+        viewport : undefined
     };
+    this.mouse = undefined;
 };
 utils.inherit(GameStage, Stage);
 GameStage.prototype.registerObjects = function registerObjects() {
@@ -68,26 +62,71 @@ GameStage.prototype.registerObjects = function registerObjects() {
 };
 GameStage.prototype.update = function update(time) {
     //console.log(this.LOG_TAG + " update");
+    if (this.mouse && this.world.viewport) {
+        if (this.world.srow >= 0 && this.world.srow <= this.world.h - this.world.viewport.rows + 2) {
+            if (this.mouse.mousePos.y < this.world.tileWidth) {
+                this.world.srow -= 1;
+                if (this.world.srow < 0) {
+                    this.world.srow = 0;
+                }
+            } else if (this.mouse.mousePos.y > this.world.tileHeight/2 * (this.world.viewport.rows - 2)) {
+                this.world.srow += 1;
+                if (this.world.srow >= this.world.h - this.world.viewport.rows + 2) {
+                    this.world.srow = this.world.h - this.world.viewport.rows + 1;
+                }
+            }
+        }
+        if (this.mouse.mousePos.x < this.world.tileWidth*2) {
+            this.world.scol -= 1;
+            if (this.world.scol < 0) {
+                this.world.scol += this.world.w;
+            }
+        } else if (this.mouse.mousePos.x > this.world.tileWidth * (this.world.viewport.cols - 2)) {
+            this.world.scol += 1;
+            if (this.world.scol === this.world.w) {
+                this.world.scol = 0;
+            }
+        }
+    }
     return 16;
 };
 GameStage.prototype.render = function render(ctx, forceRedraw) {
-    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, s,dc,dr, sprite,r,c;
+    var row, col, tileRow, tile, sliceD, viewport, x, y, w, h, s, dc, dr, sprite, r, c;
     //var rowCount, colCount;   
     ctx.lineWidth = 1;
     //calculates the viewport
     //TODO: change the last index with the tile num
-    viewport = {
-        rows:  Math.floor(ctx.canvas.height / this.world.tileHeight*2),
+    this.world.viewport = this.world.viewport || {
+        rows: Math.floor(ctx.canvas.height / this.world.tileHeight * 2),
         cols: Math.floor(ctx.canvas.width / this.world.tileWidth)
     };
 
-    dc = Math.floor(this.world.scroll.x / this.world.tileWidth);
-    dr = Math.floor(this.world.scroll.y / this.world.tileHeight);
-    this.world.scol += dc;
-    this.world.srow = dr;
-
-    //centerX = ctx.canvas.width / 2 - this.world.tileWidth / 2;
-    //centerY = 0; //ctx.canvas.height / 2;
+    //if (this.mouse) {
+    //    if (this.world.srow >= 0 && this.world.srow <= this.world.h - viewport.rows + 2) {
+    //        if (this.mouse.mousePos.y < this.world.tileWidth) {
+    //            this.world.srow -= 1;
+    //            if (this.world.srow < 0) {
+    //                this.world.srow = 0;
+    //            }
+    //        } else if (this.mouse.mousePos.y > this.world.tileHeight/2 * (viewport.rows - 2)) {
+    //            this.world.srow += 1;
+    //            if (this.world.srow >= this.world.h - viewport.rows + 2) {
+    //                this.world.srow = this.world.h - viewport.rows + 1;
+    //            }
+    //        }
+    //    }
+    //    if (this.mouse.mousePos.x < this.world.tileWidth*2) {
+    //        this.world.scol -= 1;
+    //        if (this.world.scol < 0) {
+    //            this.world.scol += this.world.w;
+    //        }
+    //    } else if (this.mouse.mousePos.x > this.world.tileWidth * (viewport.cols - 2)) {
+    //        this.world.scol += 1;
+    //        if (this.world.scol === this.world.w) {
+    //            this.world.scol = 0;
+    //        }
+    //    }
+    //}
 
     //if(!this.world.rendered || forceRedraw) {
     ctx.fillStyle = "#000000";
@@ -95,53 +134,26 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
     ctx.font = "italic 8px sans";
     ctx.textAlign = "center";
     ctx.baseline = "middle";
-    for (col = viewport.cols ; col >=0; col--) {
+    for (col = this.world.viewport.cols; col >= 0; col--) {
         c = this.world.scol + col;
-        if(c < 0){
+        if(c >= this.world.w){
+            c -= this.world.w;
+        }else if(c < 0){
             c = this.world.w + c;
-            this.world.scol += this.world.w;
-        }else if(c === this.world.w){
-            c = 0;            
-            this.world.scol = c;
-        }else if(c > this.world.w){
-            c = c - this.world.w;                 
-            this.world.scol -= this.world.w;
         }
-        for (row = 0; row < viewport.rows+1; row++) {
-            tile = this.world.tiles[row][c];
-            tile.x = (row%2) * this.world.tileWidth/2 + col * this.world.tileWidth - this.world.tileHeight;
-            tile.y = row * this.world.tileHeight/2 - this.world.tileHeight;
+        for (row = 0; row < this.world.viewport.rows - 1; row++) {
+            r = this.world.srow + row;
+            tile = this.world.tiles[r][c];
+            tile.x = (row % 2) * this.world.tileWidth / 2 + (col - 1 / 2) * this.world.tileWidth;
+            tile.y = (row - 1) / 2 * this.world.tileHeight;
             tile.render(ctx);
         }
     }
 
-
-        //for (col = 0; col < viewport.cols; col++) {
-    //    c = col - this.world.scol;
-    //    if(c < 0){
-    //        c = 0;
-    //    }
-    //    for (row = 0; row < viewport.rows; row++) {
-    //        r = row - this.world.srow;
-    //        if(r<0){
-    //            r = 0;
-    //        }
-    //        tile = this.world.tiles[r][c];
-    //        tile.x = centerX + (col - row) * this.world.tileHeight;
-    //        tile.y = centerY + (row + col) * this.world.tileHeight / 2;
-    //        tile.render(ctx);
-    //    }
-    //
-    //}
-    //this.world.rendered = true;
-    //}
-
     //now render the scrolling line!
-    ctx.strokeStyle= "#ffffff";
-    ctx.beginPath();
-    ctx.moveTo(this.world.scroll.startX, this.world.scroll.startY);
-    ctx.lineTo(this.world.scroll.startX + this.world.scroll.x, this.world.scroll.startY - this.world.scroll.y);
-    ctx.stroke();
+    ctx.strokeStyle = "goldenrod";
+    ctx.font = "bold 28px Verdana";
+    ctx.strokeText(this.world.srow + ":" + this.world.scol, ctx.canvas.width / 2, 10);
 
     return ctx;
 };
@@ -150,49 +162,8 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
 
 GameStage.prototype.mouseMoveHandler = function (status) {
     var self = this;
-    var btn, b, hit;
-    if(status.mouse.isDragging){
-        this.world.scroll= {
-            startX: status.mouse.mousePos.scrollX,
-            startY: status.mouse.mousePos.scrollY,
-            x: status.mouse.mousePos.deltaX,
-            y: status.mouse.mousePos.deltaY,
-            dirX: status.mouse.mousePos.scrollDirX,
-            dirY:status.mouse.mousePos.scrollDirY
-        }
-    }else {
-        this.world.scroll= {
-            startX: 0,
-            startY: 0,
-            x: 0,
-            y: 0,
-            dirX: 0,
-            dirY: 0
-        }
-    }
-    //for (b = 0; b < self.config.buttons.length; b++) {
-    //    btn = self.config.buttons[b];
-    //    if (btn.size) {
-    //        if (btn.size.x < status.mouse.mousePos.x
-    //            && btn.size.x + btn.size.w > status.mouse.mousePos.x
-    //            && btn.size.y < status.mouse.mousePos.y
-    //            && btn.size.y + btn.size.h > status.mouse.mousePos.y
-    //            && !btn.disabled
-    //        ) {
-    //            hit = true;
-    //            btn.hover = true;
-    //        } else {
-    //            btn.hover = false;
-    //        }
-    //    } else {
-    //        btn.hover = false;
-    //    }
-    //}
-    //if (hit) {
-    //    document.body.style.cursor = "pointer";
-    //} else {
+    this.mouse = status.mouse;
     document.body.style.cursor = "default";
-    //}
 };
 //GameStage.prototype.mouseDownHandler = function (status) {
 //    var self = this;
