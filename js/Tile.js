@@ -3,7 +3,8 @@
  */
 
 var DISPLAY_COLORS = {
-    OCEAN: '#82caff',
+    OCEAN: '#0094ff',
+    COAST: '#82caff',
     BEACH: '#ffe98d',
     LAKE: '#2f9ceb',
     RIVER: '#369eea',
@@ -12,8 +13,8 @@ var DISPLAY_COLORS = {
     ICE: '#b3deff',
     ROCK: '#535353',
     LAVA: '#e22222',
-
     SNOW: '#f8f8f8',
+
     TUNDRA: '#ddddbb',
     BARE: '#bbbbbb',
     SCORCHED: '#999999',
@@ -37,8 +38,10 @@ var Tile = function Tile(r, c, x, y, w, h, img) {
     this.h = h;
     this.img = img;
 
+    this.type = undefined;
+
     this.elevation = undefined;
-    this.umidity = undefined;
+    this.moisture = undefined;
     this.temperature = undefined;
     this.rainfall = undefined;
 };
@@ -51,17 +54,8 @@ Tile.prototype.render = function render(ctx, forceRedraw) {
     // ctx.drawImage(this.img,
     //     this.x,
     //     this.y);
-    if (this.elevation < 0) {
-        ctx.fillStyle = DISPLAY_COLORS.OCEAN;
-    } else if (this.elevation < 20) {
-        ctx.fillStyle = DISPLAY_COLORS.BEACH;
-    } else if (this.elevation < 80) {
-        ctx.fillStyle = DISPLAY_COLORS.GRASSLAND;
-    } else if (this.elevation < 85) {
-        ctx.fillStyle = DISPLAY_COLORS.ROCK;
-    } else {
-        ctx.fillStyle = DISPLAY_COLORS.SNOW;
-    }
+
+    ctx.fillStyle = DISPLAY_COLORS[this.type];
     ctx.beginPath();
     ctx.moveTo(this.x, this.y + this.h / 2);
     ctx.lineTo(this.x + this.w / 2, this.y);
@@ -69,8 +63,58 @@ Tile.prototype.render = function render(ctx, forceRedraw) {
     ctx.lineTo(this.x + this.w / 2, this.y + this.h);
     ctx.lineTo(this.x, this.y + this.h / 2);
     ctx.fill();
-    //ctx.stroke();
+
     ctx.fillStyle = "whitesmoke";
     ctx.fillText(this.r + "," + this.c, this.x + this.w / 2, this.y + this.h / 2);
     ctx.fillText(this.elevation, this.x + this.w / 2, this.y + 8 +this.h / 2);
+};
+
+Tile.prototype.getBiome = function getBiome(hNoise,mNoise,tNoise,rfNoise) {
+    var maxHeight = 100;
+    this.setElevation(hNoise, maxHeight);
+
+    //identify the type of the tile
+    if(this.elevation < -maxHeight * 0.2){
+        this.type = "OCEAN";
+    }
+    else if(this.elevation < maxHeight * 0.1){
+        this.type = "COAST";
+    }
+    else if(this.elevation < maxHeight * 0.25){
+        this.type = "BEACH";
+    }
+    else if(this.elevation < maxHeight * 0.75){
+        this.type = "GRASSLAND";
+    }
+    else if(this.elevation < maxHeight * 0.9){
+        this.type = "ROCK";
+    }
+    else {
+        this.type = "SNOW";
+    }
+
+    this.setMoisture(mNoise);
+    this.setTemperature(tNoise);
+    this.setRainfall(rfNoise);
+
+    //now identify the correct biomass
+
+
+};
+
+Tile.prototype.setElevation = function setElevation(noise, maxHeight) {
+    var val= noise.simplex2(this.c / maxHeight, this.r / maxHeight);
+    this.elevation = Math.floor(val * maxHeight);
+};
+
+Tile.prototype.setMoisture = function setMoisture(noise) {
+    this.moisture = noise.simplex2(this.c / 100, this.r / 100);
+};
+
+Tile.prototype.setTemperature = function setTemperature(noise, equator) {
+    this.temperature = noise.simplex2(this.c / 100, this.r / 100);
+};
+
+Tile.prototype.setRainfall = function setRainfall(noise) {
+    this.rainfall = noise.simplex2(this.c / 100, this.r / 100);
 };

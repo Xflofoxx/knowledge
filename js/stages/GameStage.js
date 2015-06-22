@@ -157,32 +157,25 @@ GameStage.prototype.render = function render(ctx, forceRedraw) {
 };
 
 GameStage.prototype.generateWorld = function generateWorld(w, h, tw, th) {
-    var row, col;
+    var row, col, tile;
     var world = [];
 
-    var height, umidity, temperature, rainfall;
+    var heightNoise = new NoiseGenerator(Math.random()),
+        moistureNoise = new NoiseGenerator(Math.random()),
+        temperatureNoise = new NoiseGenerator(Math.random()),
+        rainfallNoise = new NoiseGenerator(Math.random());
 
     for (row = 0; row < h; row++) {
         world[row] = world[row] || [];
         for (col = 0; col < w; col++) {
-            world[row][col] = new Tile(row, col, 0, 0, tw, th,
+            tile= new Tile(row, col, 0, 0, tw, th,
                 this.AM.bundle.game[this.config.assets[Math.floor(Math.random() * this.config.assets.length)].id]);
+            tile.getBiome(heightNoise,moistureNoise,temperatureNoise,rainfallNoise);
+            world[row][col] = tile;
         }
     }
-    this.setTilesHeight(world, 100);
+    //this.setTilesHeight(world, 100);
     return world;
-};
-GameStage.prototype.setTilesHeight = function setTilesHeight(tiles, maxHeight) {
-    var row, col, tile, tl = tiles.length, tcl, value;
-    noise.seed(Math.random());
-    for (row = 0; row < tl; row++) {
-        tcl = tiles[row].length;
-        for (col = 0; col < tcl; col++) {
-            tile = tiles[row][col];
-            value = noise.simplex2(col / 100, row / 100);
-            tile.elevation = Math.floor(value * maxHeight);
-        }
-    }
 };
 
 //<editor-fold desc="# IO Handlers">
