@@ -21,7 +21,7 @@ var InputManager = function InputManager(game) {
 
     //this is the list of the managed events
     this.managedEvents = [
-        'keyUp','keyDown','mouseUp','mouseDown','mouseMove','mouseWheel','contextMenu'
+        'keyUp','keyDown','mouseUp','mouseDown','mouseMove','wheel','contextMenu'
     ];
 
     // Attach listeners for game and ambient

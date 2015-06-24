@@ -101,44 +101,6 @@ MenuStage.prototype.render = function render(ctx, forceRedraw) {
             h: buttonSize.h
         };
         ui.drawButton(ctx,btn);
-        //if (btn.disabled) {
-        //    ctx.save();
-        //    ctx.globalAlpha = 0.4;
-        //    ctx.drawImage(this.AM.bundle.menu.btn,
-        //        btn.size.x, btn.size.y, btn.size.w, btn.size.h);
-        //    ctx.fillText(btn.title,
-        //        btn.size.x + btn.size.w / 2,
-        //        btn.size.y + btn.size.h / 2 - 2,
-        //        btn.size.w);
-        //    ctx.restore();
-        //}
-        //else if (btn.pressed) {
-        //    ctx.drawImage(this.AM.bundle.menu.btnDown,
-        //        btn.size.x, btn.size.y, btn.size.w, btn.size.h);
-        //    ctx.fillText(btn.title,
-        //        btn.size.x + btn.size.w / 2,
-        //        btn.size.y + btn.size.h / 2 - 2,
-        //        btn.size.w);
-        //}
-        //else if (btn.hover) {
-        //    ctx.drawImage(this.AM.bundle.menu.btn,
-        //        btn.size.x, btn.size.y, btn.size.w, btn.size.h);
-        //    ctx.fillText(btn.title,
-        //        btn.size.x + btn.size.w / 2,
-        //        btn.size.y + btn.size.h / 2 - 2,
-        //        btn.size.w);
-        //}
-        //else {
-        //    ctx.save();
-        //    ctx.globalAlpha = 0.8;
-        //    ctx.drawImage(this.AM.bundle.menu.btn,
-        //        btn.size.x, btn.size.y, btn.size.w, btn.size.h);
-        //    ctx.fillText(btn.title,
-        //        btn.size.x + btn.size.w / 2,
-        //        btn.size.y + btn.size.h / 2 - 2,
-        //        btn.size.w);
-        //    ctx.restore();
-        //}
     }
 
     return ctx;

@@ -3,8 +3,9 @@
  * Created by Dario on 05/06/2015.
  */
 var JagEngine = function JagEngine(canvas){
-    this.LOG_TAG = "JagEngine:";
+    var bgCanvas = document.createElement('canvas');
 
+    this.LOG_TAG = "JagEngine:";
     this.rAF = 0; // reference for RequestAnimationFrame
     this.ttu = 0; // TimeToUpdate - time (in ms) till next update
     this.time = 0; // Last update time
@@ -13,11 +14,11 @@ var JagEngine = function JagEngine(canvas){
     this.running = false; // Flag to store runloop state
 
     this.ctx = canvas.getContext('2d');
-    this._bgcanvas = document.createElement('canvas');
-    this.bctx = this._bgcanvas.getContext('2d');
+    this.bctx = bgCanvas.getContext('2d');
     this.currentStage = null;
     this.IO = null;
     this.forceRedraw=false;
+    this.zoom = 1;
 };
 JagEngine.prototype.init = function init(inputManager){
     this.IO = inputManager;
@@ -30,12 +31,16 @@ JagEngine.prototype.init = function init(inputManager){
     //attach event for resize
     window.addEventListener('resize', this.onResizeHandler.bind(this), false);
 
+
     this.initialized= true;
     this.clear();
     // console.log(this.LOG_TAG + " init!");
 };
 JagEngine.prototype.start = function start(){
     if(this.initialized){
+        //add listeners
+        //this.IO.on('wheel',this.onMouseWheelHandler.bind(this));
+
         this.rAF = requestAnimationFrame(this.frame.bind(this));
     }
     this.running = true;
@@ -59,6 +64,10 @@ JagEngine.prototype.loadStage = function loadStage(stage){
     this.currentStage = stage;
     this.currentStage.init(function(err){
         self.currentStage.active = true;
+        if(self.currentStage.needCamera){
+            self.currentStage.Camera = new Camera(0, 0, self.bctx.canvas.width, self.bctx.canvas.height);
+        }
+        self.clear();
         self.start();
     });
 };
@@ -80,7 +89,7 @@ JagEngine.prototype.frame= function frame(time){
 JagEngine.prototype.update = function update(time){
     // console.log(this.LOG_TAG + " update!");
     if(this.currentStage){
-        return this.currentStage.update(time);
+        return this.currentStage.update(this.bctx, time);
     }else{
         return 17;
     }
@@ -88,23 +97,30 @@ JagEngine.prototype.update = function update(time){
 JagEngine.prototype.render = function render(){
     if(this.currentStage){
         this.bctx = this.currentStage.render(this.bctx, this.forceRedraw);
-        this.ctx.drawImage(this._bgcanvas, 0, 0);
+        this.clear("ctx");
+        this.ctx.drawImage(this.bctx.canvas, 0, 0);
         this.forceRedraw = false;
     }
     //attach other engine rendering
     this.IO.drawInputInfos(this.ctx);
     //this.testUI();
 };
-JagEngine.prototype.clear = function clear(){
-    // console.log(this.LOG_TAG + " clear!");
-    this.ctx.fillStyle = "#000000";
-    this.ctx.fillRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
-};
-
-JagEngine.prototype.testUI = function testUI(){
-    var w = new ui.window.empty("Mouse infos", (this.ctx.canvas.width-100)/2,
-        (this.ctx.canvas.height-60)/2, 400,200);
-    w.render(this.ctx);
+JagEngine.prototype.clear = function clear(what){
+    switch(what){
+        case "ctx":
+            this.ctx.fillStyle = "#000000";
+            this.ctx.fillRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
+            break;
+        case "bctx":
+            this.bctx.fillStyle = "#000000";
+            this.bctx.fillRect(0, 0, this.bctx.canvas.width, this.bctx.canvas.height);
+            break;
+        default:
+            this.bctx.fillStyle = "#000000";
+            this.bctx.fillRect(0, 0, this.bctx.canvas.width, this.bctx.canvas.height);
+            this.ctx.fillStyle = "#000000";
+            this.ctx.fillRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
+    }
 };
 
 JagEngine.prototype.onResizeHandler = function onResizeHandler(event){
@@ -116,4 +132,3 @@ JagEngine.prototype.onResizeHandler = function onResizeHandler(event){
     this.clear();
     this.forceRedraw = true;
 };
-

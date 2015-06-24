@@ -9,6 +9,9 @@ var Stage = function Stage(name, config, AM, IO) {
     this.resourceMap = false;
     //IOManager
     this.IO = IO;
+    //Camera for zoom, pan and rotate
+    this.needCamera = false;
+    this.Camera = undefined;
     //objects
     this.objects = [];
     this.paused = false;
@@ -42,7 +45,7 @@ Stage.prototype.registerObjects = function registerObjects() {
         this.IO.on(event.toLowerCase(), this[event + "Handler"].bind(this));
     }
 };
-Stage.prototype.update = function update(time) {
+Stage.prototype.update = function update(ctx,time) {
     console.log(this.LOG_TAG + " update");
     if (this.active) {
         return 16;
@@ -51,7 +54,7 @@ Stage.prototype.update = function update(time) {
     }
 };
 Stage.prototype.render = function render(ctx, forceRedraw) {
-    console.log(this.LOG_TAG + " render");
+    console.log(this.LOG_TAG + " render", forceRedraw);
     //ctx.drawImage(this.AM.bundle[this.name]["tree.jpg"],0,0,ctx.canvas.width, ctx.canvas.height);
     return ctx;
 };
@@ -65,24 +68,24 @@ Stage.prototype.manage = function manage(event, data, suppressEmit) {
 
 //<editor-fold desc="# IO Handlers">
 Stage.prototype.keyUpHandler = function (event) {
-    //console.log(this.LOG_TAG + " keyUpHandler");
+    console.log(this.LOG_TAG + " keyUpHandler");
 };
 Stage.prototype.keyDownHandler = function (event) {
-    //console.log(this.LOG_TAG + " keyDownHandler");
+    console.log(this.LOG_TAG + " keyDownHandler");
 };
 Stage.prototype.mouseUpHandler = function (event) {
-    //console.log(this.LOG_TAG + " mouseUpHandler");
+    console.log(this.LOG_TAG + " mouseUpHandler");
 };
 Stage.prototype.mouseDownHandler = function (event) {
-    //console.log(this.LOG_TAG + " mouseDownHandler");
+    console.log(this.LOG_TAG + " mouseDownHandler");
 };
-Stage.prototype.mouseWheelHandler = function (event) {
-    //console.log(this.LOG_TAG + " mouseWheelHandler");
+Stage.prototype.wheelHandler = function (event) {
+    console.log(this.LOG_TAG + " mouseWheelHandler");
 };
 Stage.prototype.mouseMoveHandler = function (event) {
-    //console.log(this.LOG_TAG + " mouseMoveHandler");
+    console.log(this.LOG_TAG + " mouseMoveHandler");
 };
 Stage.prototype.contextMenuHandler = function (event) {
-    //console.log(this.LOG_TAG + " contextMenuHandler");
+    console.log(this.LOG_TAG + " contextMenuHandler");
 };
 //</editor-fold>

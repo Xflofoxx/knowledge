@@ -14,7 +14,7 @@
  *
  */
 
-var NoiseGenerator = function NoiseGenerator(seed) {
+var NoiseGenerator = function NoiseGenerator(s) {
     var module = {};
 
     function Grad(x, y, z) {
@@ -78,7 +78,7 @@ var NoiseGenerator = function NoiseGenerator(seed) {
         }
     };
 
-    module.seed(seed);
+    module.seed(s);
 
     /*
      for(var i=0; i<256; i++) {
