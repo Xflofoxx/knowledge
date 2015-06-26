@@ -12,6 +12,7 @@ var Camera = function Camera(startX, startY, width, height) {
     this.worldH = 1000;
     //maybe the viewport will be smaller than the entire canvas
     this.viewport = {};
+    this.zoom = 1;
 };
 
 Camera.prototype.update = function update(ctx, world) {
@@ -20,12 +21,13 @@ Camera.prototype.update = function update(ctx, world) {
     this.worldW = world.w;
     this.worldH = world.h;
     this.viewport = {
-        rows: Math.floor(this.h / world.tileHeight * 2),
-        cols: Math.floor(this.w / world.tileWidth)
+        rows: Math.floor(this.h * 2 / (world.tileHeight  * this.zoom)),
+        cols: Math.floor(this.w / (world.tileWidth* this.zoom))
     };
+    console.log("Camera update",this.zoom, this.viewport, world.tileWidth, world.tileHeight)
 };
 
-Camera.prototype.render = function render(ctx, world) {
+Camera.prototype.render = function render(ctx, forceRedraw, world) {
     var row, col, r, c, tile;
     ctx.save();
     ctx.lineWidth = 1;
@@ -49,11 +51,9 @@ Camera.prototype.render = function render(ctx, world) {
                 }
                 tile = world.tiles[r][c];
                 if (tile) {
-                    tile.x = (r % 2) * tile.w / 2 + (col - 1 / 2) * tile.w;
-                    tile.y = (row - 1) / 2 * tile.h;
-                    tile.render(ctx);
-                }else{
-                    console.error("Rendering",tile,r,c);
+                    tile.x = (r % 2) * tile.w * this.zoom / 2 + (col - 1 / 2) * tile.w * this.zoom;
+                    tile.y = (row - 1) / 2 * tile.h* this.zoom;
+                    tile.render(ctx, forceRedraw,  this.zoom);
                 }
             }
         }
@@ -69,7 +69,7 @@ Camera.prototype.selectTile = function selectTile(world, mouse){
     var r,c;
     for (r = this.srow; r < this.viewport.rows+2; r++) {
         for (c = this.scol; c < this.viewport.cols; c++) {
-            if(mouse.mousePos.x > world.tiles[r][c].x && 
+            if(world.tiles[r][c] && mouse.mousePos.x > world.tiles[r][c].x && 
                 mouse.mousePos.x < world.tiles[r][c].x + world.tiles[r][c].w && 
  mouse.mousePos.y > world.tiles[r][c].y && 
                 mouse.mousePos.y < world.tiles[r][c].y + world.tiles[r][c].h){
@@ -101,7 +101,15 @@ Camera.prototype.moveDown = function moveDown(max) {
     if (this.srow < max - this.viewport.rows-2) {
         this.srow += 1;
     }
-    //if (this.world.srow >= this.world.h - viewport.rows + 2) {
-    //    this.world.srow = this.world.h - viewport.rows + 1;
-    //}
+};
+Camera.prototype.changeZoom = function changeZoom(amount){
+    //zoom range from -2 to 2
+    if(this.zoom <= -2){
+        this.zoom = -2;
+    } else if(this.zoom >= 2) {
+        this.zoom = 2;
+    }else{
+        this.zoom += amount/2;
+        console.log("Current zoom",this.zoom, amount);
+    }
 };

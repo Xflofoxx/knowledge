@@ -92,5 +92,12 @@ var utils = {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
 
         return text;
+    },
+    getXHR : function getXHR(url, progress, next){
+        var xhr = new XMLHttpRequest();
+        xhr.onprogress = progress;
+        xhr.open('GET', url, true);
+        xhr.onload = next;
+        xhr.send();
     }
 };

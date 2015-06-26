@@ -6,9 +6,9 @@
     <title>Knowledge - a game on mankind</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/main.css">
-    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="./css/normalize.css">
+    <link rel="stylesheet" href="./css/main.css">
+
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -22,36 +22,34 @@
     <canvas id="game"></canvas>
 </div>
 
-<script src="js/vendor/jquery-2.1.4.js"></script>
-<script src="js/vendor/modernizr-2.8.3.min.js"></script>
-<script src="js/vendor/perlin.js"></script>
-<script src="js/plugins.js"></script>
-<script src="js/ui.lib.js"></script>
-
-<script src="js/EventEmitter.js"></script>
-<script src="js/AssetsManager.js"></script>
-<script src="js/stages/Stage.js"></script>
-<script src="js/stages/MenuStage.js"></script>
-<script src="js/stages/SettingsStage.js"></script>
-<script src="js/stages/GameStage.js"></script>
-<script src="js/InputManager.js"></script>
-<script src="js/Camera.js"></script>
-<script src="js/Tile.js"></script>
-<script src="js/JagEngine.js"></script>
-<script src="js/KnowledgeGame.js"></script>
+<script src="./js/libs/jquery-2.1.4.js"></script>
+<script src="./js/libs/modernizr-2.8.3.min.js"></script>
+<script src="./js/libs/plugins.js"></script>
+<script src="./js/libs/ui.lib.js"></script>
+<script src="./js/core/AssetsManager.js"></script>
 
 <script>
-    var KnowLedge;
     $(function () {
-        KnowLedge = new KnowledgeGame(document.getElementById('game'));
-        KnowLedge.init(function(err){
-            KnowLedge.start();
+        var inputScript = [
+            // Tools and other libs
+            "./js/libs/perlin.js",
+            // Core files
+            "./js/core/EventEmitter.js",
+            "./js/core/InputManager.js",
+            "./js/core/JagEngine.js",
+            "./js/core/KnowledgeGame.js",
 
-//            setTimeout(function(){
-//                KnowLedge.stop();
-//                $('body').html("<p><a href='index.html' onClick='window.reload();'>Fine... Ricarica</a></p>");
-//            }, 60 * 1000);
+            //loads the stages
+            "./js/stages/Stage.js",
+            "./js/stages/MenuStage.js",
+            "./js/stages/SettingsStage.js",
+            "./js/stages/MainStage.js"
+        ];
+
+        var AM = new AssetsManager().loadAssets(inputScript, function () {
+            window.alert("Loaded all js!");
         });
+
     });
 </script>
 </body>

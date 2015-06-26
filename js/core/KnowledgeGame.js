@@ -56,7 +56,7 @@ KnowledgeGame.prototype.init = function init(initComplete) {
         }
     });
 
-    this.stages.game = new GameStage(this.assetsManager, this.IO, this.currentConfig);
+    this.stages.game = new MainStage(this.assetsManager, this.IO, this.currentConfig);
 
     console.log(this.LOG_TAG + " init complete!");
     initComplete(null);
@@ -65,38 +65,9 @@ KnowledgeGame.prototype.init = function init(initComplete) {
 KnowledgeGame.prototype.start = function start() {
     console.log(this.LOG_TAG + " start!");
     this.engine.start();
-    this.engine.loadStage(this.stages.menu);
+    this.engine.loadStage("menu");
 };
 KnowledgeGame.prototype.stop = function stop() {
     console.log(this.LOG_TAG + " stop!");
     this.engine.stop();
-};
-
-KnowledgeGame.prototype.test2Areduce = function test2Areduce(){
-    var tarray=[], rarray=[], r,c;
-    for(r=0;r<10;r++){
-        tarray[r]= [];
-        for(c=0;c<20;c++){
-            tarray[r][c]=Math.abs(Math.random() * 256);
-        }
-    }
-
-    //var rc = 5, cc=2;
-    //for(var r=0;r< a.length;r+=rc){
-    //    rarray = tarray.reduce(function(pa, a) {
-    //        var chunks=[],chunk;
-    //        for(var c=0;c< a.length;c+=cc){
-    //            chunk = a.slice(c,c+cc);
-    //            chunk = chunk.reduce(function(a,b){
-    //                return (a+b)/2;
-    //            });
-    //            chunks.push(chunk);
-    //        }
-    //        return pa.push(chunks);
-    //    });
-    //}
-
-
-    console.log("test",tarray,rarray);
-    this.stop();
 };

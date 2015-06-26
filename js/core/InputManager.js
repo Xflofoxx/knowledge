@@ -87,7 +87,7 @@ InputManager.prototype.mouseWheel = function (evt) {
     this.mousePos.deltaX = 0;
     this.mousePos.deltaY = 0;
     // Use the value as you will
-    this.mouseWheelDir += direction;
+    this.mouseWheelDir = direction;
     this.emit("wheel", this.getStatus());
 };
 //TODO: provide more X/Y values (page, client...)

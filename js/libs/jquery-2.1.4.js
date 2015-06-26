@@ -332,7 +332,7 @@ jQuery.extend({
 
 	// Convert dashed to camelCase; used by the css and data modules
 	// Support: IE9-11+
-	// Microsoft forgot to hump their vendor prefix (#9572)
+	// Microsoft forgot to hump their libs prefix (#9572)
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
@@ -5742,15 +5742,15 @@ var
 
 	cssPrefixes = [ "Webkit", "O", "Moz", "ms" ];
 
-// Return a css property mapped to a potentially vendor prefixed property
+// Return a css property mapped to a potentially libs prefixed property
 function vendorPropName( style, name ) {
 
-	// Shortcut for names that are not vendor prefixed
+	// Shortcut for names that are not libs prefixed
 	if ( name in style ) {
 		return name;
 	}
 
-	// Check for vendor prefixed names
+	// Check for libs prefixed names
 	var capName = name[0].toUpperCase() + name.slice(1),
 		origName = name,
 		i = cssPrefixes.length;

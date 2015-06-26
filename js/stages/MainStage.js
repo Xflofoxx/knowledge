@@ -5,17 +5,18 @@
  * Created by Dario on 12/06/2015.
  */
 
-var GameStage = function GameStage(AM, IO, settings) {
+var MainStage = function MainStage(AM, IO, settings) {
 
     var assetsArray = [];
-    for (var a = 0; a < 24; a++) {
-        assetsArray.push({
-            id: "gw_" + a,
-            path: window.location + '/../assets/tiles/',
-            file: "grass_and_water_" + a + ".png",
-            mime: "image/png"
-        });
-    }
+    //for (var a = 0; a < 24; a++) {
+    //    assetsArray.push({
+    //        id: "gw_" + a,
+    //        path: window.location + '/../assets/tiles/',
+    //        file: "grass_and_water_" + a + ".png",
+    //        mime: "image/png"
+    //    });
+    //}
+
 
     Stage.call(this, "game", {
         assets: assetsArray,
@@ -29,15 +30,15 @@ var GameStage = function GameStage(AM, IO, settings) {
         selectedTile : undefined,
         tileWidth: 64,
         tileHeight: 32,
-        w: 1000,
-        h: 800
+        w: 2000,
+        h: 2000
     };
 
     this.mouse = undefined;
     this.needCamera = true;
 };
-utils.inherit(GameStage, Stage);
-GameStage.prototype.registerObjects = function registerObjects() {
+utils.inherit(MainStage, Stage);
+MainStage.prototype.registerObjects = function registerObjects() {
 
     Stage.prototype.registerObjects.call(this);
     //prepare the world
@@ -49,9 +50,10 @@ GameStage.prototype.registerObjects = function registerObjects() {
         c: 0
     });
 };
-GameStage.prototype.update = function update(ctx, time) {
-    var x, y, r, c;
+MainStage.prototype.update = function update(ctx, time) {
+    //var x, y, r, c;
     //console.log(this.LOG_TAG + " update");
+    /*
     if (this.mouse) {
         if (this.mouse.mousePos.y < this.world.tileWidth) {
             this.Camera.moveUp(this.world.h);
@@ -64,18 +66,19 @@ GameStage.prototype.update = function update(ctx, time) {
             this.Camera.moveRight(this.world.w);
         }
     }
+    */
     this.Camera.update(ctx, this.world);
     return 16;
 };
-GameStage.prototype.render = function render(ctx, forceRedraw) {
-    this.Camera.render(ctx, this.world);
+MainStage.prototype.render = function render(ctx, forceRedraw) {
+    this.Camera.render(ctx, forceRedraw, this.world);
     if(this.world.selectedTile){
-        this.world.selectedTile.renderSelected(ctx);
+        this.world.selectedTile.renderSelected(ctx, this.Camera.zoom);
     }
     return ctx;
 };
 
-GameStage.prototype.generateWorld = function generateWorld(w, h, tw, th) {
+MainStage.prototype.generateWorld = function generateWorld(w, h, tw, th) {
     var row, col, tile;
     var world = [];
 
@@ -87,9 +90,8 @@ GameStage.prototype.generateWorld = function generateWorld(w, h, tw, th) {
     for (row = 0; row < h; row++) {
         world[row] = world[row] || [];
         for (col = 0; col < w; col++) {
-            tile = new Tile(row, col, 0, 0, tw, th,
-                this.AM.bundle.game[this.config.assets[Math.floor(Math.random() * this.config.assets.length)].id]);
-            tile.getBiome(heightNoise, moistureNoise, temperatureNoise, rainfallNoise);
+            tile = new Tile(row, col, 0, 0, tw, th);
+            tile.getBiome(heightNoise, moistureNoise, temperatureNoise, rainfallNoise, this.AM);
             world[row][col] = tile;
         }
     }
@@ -99,7 +101,7 @@ GameStage.prototype.generateWorld = function generateWorld(w, h, tw, th) {
 
 //<editor-fold desc="# IO Handlers">
 
-GameStage.prototype.mouseMoveHandler = function (status) {
+MainStage.prototype.mouseMoveHandler = function (status) {
     var self = this;
     var r,c;
     this.mouse = status.mouse;
@@ -107,7 +109,7 @@ GameStage.prototype.mouseMoveHandler = function (status) {
     //find the tile hovered
     document.body.style.cursor = "default";
 };
-GameStage.prototype.keyDownHandler = function (status) {
+MainStage.prototype.keyDownHandler = function (status) {
     if (status.keyboard[this.IO.keyEventEnum.DOM_VK_RIGHT] || status.keyboard[this.IO.keyEventEnum.DOM_VK_D]) {
         this.Camera.moveRight(this.world.w);
     }
@@ -121,12 +123,9 @@ GameStage.prototype.keyDownHandler = function (status) {
         this.Camera.moveUp(this.world.h);
     }
 };
-//GameStage.prototype.mouseDownHandler = function (status) {
-//    var self = this;
-//    var gridOffsetY = this.world.h;
-//    var gridOffsetX = this.world.w;
-//
-//    gridOffsetX += ()
-//};
+MainStage.prototype.wheelHandler = function wheel(status) {
+    var self = this;
+    this.Camera.changeZoom(status.mouse.mouseWheelDir);
+};
 
 //</editor-fold>
