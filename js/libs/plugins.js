@@ -99,5 +99,8 @@ var utils = {
         xhr.open('GET', url, true);
         xhr.onload = next;
         xhr.send();
+    },
+    randomIntFromInterval : function randomIntFromInterval(min,max) {
+        return Math.floor(Math.random()*(max-min+1)+min);
     }
 };

@@ -1,9 +1,9 @@
-var KnowledgeGame = function KnowledgeGame(canvas) {
-    this.LOG_TAG = "EntropiaGame:";
+var KnowledgeGame = function KnowledgeGame(canvas, AM) {
+    this.LOG_TAG = "KnowledgeGame:";
     this.canvas = canvas;
     this.IO = new InputManager(this);
     this.engine = new JagEngine(this.canvas);
-    this.assetsManager = new AssetsManager();
+    this.AM = AM;
     this.stages = {};
     this.currentConfig = {};
 };
@@ -11,22 +11,8 @@ var KnowledgeGame = function KnowledgeGame(canvas) {
 KnowledgeGame.prototype.init = function init(initComplete) {
     var self = this;
     this.engine.init(this.IO);
-    //Initialize the stages
-    //this.stages.test = new Stage("test", {
-    //    assets: [
-    //        {
-    //            path: window.location + '/../assets/',
-    //            file: "test.json",
-    //            mime: "application/json"
-    //        },
-    //        {
-    //            path: window.location + '/../assets/',
-    //            file: "tree.jpg",
-    //            mime: "image/jpeg"
-    //        }
-    //    ]
-    //}, this.assetsManager);
-    this.stages.menu = new MenuStage(this.assetsManager, this.IO);
+
+    this.stages.menu = new MenuStage(this);
     this.stages.menu.on("btnpressed", function (btn) {
         console.log(self.LOG_TAG + " btnpressed!", btn.action, btn);
         switch (btn.action) {
@@ -43,7 +29,7 @@ KnowledgeGame.prototype.init = function init(initComplete) {
         }
     });
 
-    this.stages.settings = new SettingsStage(this.assetsManager, this.IO, this.currentConfig);
+    this.stages.settings = new SettingsStage(this);
     this.stages.settings.on("btnpressed", function (btn) {
         console.log(self.LOG_TAG + " btnpressed!", btn.action, btn);
         switch (btn.action) {
@@ -56,7 +42,7 @@ KnowledgeGame.prototype.init = function init(initComplete) {
         }
     });
 
-    this.stages.game = new MainStage(this.assetsManager, this.IO, this.currentConfig);
+    this.stages.game = new MainStage(this);
 
     console.log(this.LOG_TAG + " init complete!");
     initComplete(null);
@@ -65,7 +51,7 @@ KnowledgeGame.prototype.init = function init(initComplete) {
 KnowledgeGame.prototype.start = function start() {
     console.log(this.LOG_TAG + " start!");
     this.engine.start();
-    this.engine.loadStage("menu");
+    this.engine.loadStage(this.stages.menu);
 };
 KnowledgeGame.prototype.stop = function stop() {
     console.log(this.LOG_TAG + " stop!");

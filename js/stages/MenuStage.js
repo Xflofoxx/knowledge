@@ -2,33 +2,11 @@
  * Created by Dario on 12/06/2015.
  */
 
-var MenuStage = function MenuStage(AM, IO) {
+var MenuStage = function MenuStage(game) {
     Stage.call(this, "menu", {
         assets: [
-            {
-                id: "panel",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "panel_brown.png",
-                mime: "image/png"
-            },
-            {
-                id: "panelInset",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "panelInset_beige.png",
-                mime: "image/png"
-            },
-            {
-                id: "btn",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "buttonLong_beige.png",
-                mime: "image/png"
-            },
-            {
-                id: "btnDown",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "buttonLong_beige_pressed.png",
-                mime: "image/png"
-            },
+            './assets/uipack-rpg/PNG/buttonLong_beige.png',
+            './assets/uipack-rpg/PNG/buttonLong_beige_pressed.png'
         ],
         title: "Knowledge",
         subTitle: " a game on mankind",
@@ -62,10 +40,23 @@ var MenuStage = function MenuStage(AM, IO) {
                 disabled: false
             }
         ]
-    }, AM, IO);
+    }, game);
     this.LOG_TAG = "MenuStage:";
 };
 utils.inherit(MenuStage, Stage);
+
+MenuStage.prototype.registerObjects = function registerObjects() {
+    var btn;
+    Stage.prototype.registerObjects.call(this);
+    //updates the button status
+    for (var i = 0; i < this.config.buttons.length; i++) {
+        btn = this.config.buttons[i];
+        btn.disabledAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige.png'];
+        btn.pressedAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige_pressed.png'];
+        btn.hoverAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige.png'];
+        btn.defaultAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige.png'];
+    }
+};
 
 MenuStage.prototype.render = function render(ctx, forceRedraw) {
     var panelSize = {
@@ -90,17 +81,13 @@ MenuStage.prototype.render = function render(ctx, forceRedraw) {
     ui.drawPanel(ctx, panelSize, true, true);
     for (var i = 0; i < this.config.buttons.length; i++) {
         btn = this.config.buttons[i];
-        btn.disabledAsset = this.AM.bundle.menu.btn;
-        btn.pressedAsset = this.AM.bundle.menu.btnDown;
-        btn.hoverAsset = this.AM.bundle.menu.btn;
-        btn.defaultAsset = this.AM.bundle.menu.btn;
         btn.size = {
             x: buttonSize.x,
             y: buttonSize.y + (buttonSize.h + 2) * (i + 1),
             w: buttonSize.w,
             h: buttonSize.h
         };
-        ui.drawButton(ctx,btn);
+        ui.drawButton(ctx, btn);
     }
 
     return ctx;

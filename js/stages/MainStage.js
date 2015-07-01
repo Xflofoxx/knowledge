@@ -5,37 +5,34 @@
  * Created by Dario on 12/06/2015.
  */
 
-var MainStage = function MainStage(AM, IO, settings) {
+var MainStage = function MainStage(game) {
 
-    var assetsArray = [];
-    //for (var a = 0; a < 24; a++) {
-    //    assetsArray.push({
-    //        id: "gw_" + a,
-    //        path: window.location + '/../assets/tiles/',
-    //        file: "grass_and_water_" + a + ".png",
-    //        mime: "image/png"
-    //    });
-    //}
-
-
+    var assetsArray = [
+        './assets/custom/tiles/dirt.png',
+        './assets/custom/tiles/grass.png',
+        './assets/custom/tiles/ocean.png',
+        './assets/custom/tiles/snow.png'
+    ];
     Stage.call(this, "game", {
         assets: assetsArray,
-        settings: settings,
+        settings: game.currentConfig,
         people: []
-    }, AM, IO);
+    }, game);
     this.LOG_TAG = "GameStage:";
 
     this.world = {
         tiles: [],
-        selectedTile : undefined,
-        tileWidth: 64,
-        tileHeight: 32,
-        w: 2000,
-        h: 2000
+        selectedTile: undefined,
+        tileWidth: 128,
+        tileHeight: 64,
+        w: 400,
+        h: 300
     };
 
     this.mouse = undefined;
     this.needCamera = true;
+
+    this.world.miniMap = undefined;
 };
 utils.inherit(MainStage, Stage);
 MainStage.prototype.registerObjects = function registerObjects() {
@@ -45,34 +42,20 @@ MainStage.prototype.registerObjects = function registerObjects() {
     this.world.tiles = this.generateWorld(this.world.w, this.world.h, this.world.tileWidth, this.world.tileHeight);
     this.config.people.push({
         name: "firstMan",
-        sex: "m",
-        r: 0,
-        c: 0
+        sex: "m"
+    });
+    this.config.people.push({
+        name: "firstWoman",
+        sex: "f"
     });
 };
 MainStage.prototype.update = function update(ctx, time) {
-    //var x, y, r, c;
-    //console.log(this.LOG_TAG + " update");
-    /*
-    if (this.mouse) {
-        if (this.mouse.mousePos.y < this.world.tileWidth) {
-            this.Camera.moveUp(this.world.h);
-        } else if (this.mouse.mousePos.y > this.world.tileHeight / 2 * (this.Camera.viewport.rows - 1)) {
-            this.Camera.moveDown(this.world.h);
-        }
-        if (this.mouse.mousePos.x < this.world.tileWidth * 2) {
-            this.Camera.moveLeft(this.world.w);
-        } else if (this.mouse.mousePos.x > this.world.tileWidth * (this.Camera.viewport.cols - 2)) {
-            this.Camera.moveRight(this.world.w);
-        }
-    }
-    */
     this.Camera.update(ctx, this.world);
     return 16;
 };
 MainStage.prototype.render = function render(ctx, forceRedraw) {
     this.Camera.render(ctx, forceRedraw, this.world);
-    if(this.world.selectedTile){
+    if (this.world.selectedTile) {
         this.world.selectedTile.renderSelected(ctx, this.Camera.zoom);
     }
     return ctx;
@@ -81,29 +64,105 @@ MainStage.prototype.render = function render(ctx, forceRedraw) {
 MainStage.prototype.generateWorld = function generateWorld(w, h, tw, th) {
     var row, col, tile;
     var world = [];
+    var miniC = document.createElement('canvas');
+    var miniCtx = miniC.getContext('2d');
 
     var heightNoise = new NoiseGenerator(Math.random()),
         moistureNoise = new NoiseGenerator(Math.random()),
-        temperatureNoise = new NoiseGenerator(Math.random()),
         rainfallNoise = new NoiseGenerator(Math.random());
 
+    miniC.width = w - 1;
+    miniC.height = h - 1;
+    miniCtx.globalAlpha = 0.8;
     for (row = 0; row < h; row++) {
         world[row] = world[row] || [];
         for (col = 0; col < w; col++) {
             tile = new Tile(row, col, 0, 0, tw, th);
-            tile.getBiome(heightNoise, moistureNoise, temperatureNoise, rainfallNoise, this.AM);
+            this.setBiome(tile, heightNoise, moistureNoise, rainfallNoise);
             world[row][col] = tile;
+            //prepare minimap
+            miniCtx.fillStyle = DISPLAY_COLORS[tile.type];
+            miniCtx.fillRect(col, row, 1, 1);
         }
     }
-    //this.setTilesHeight(world, 100);
+
+    this.world.miniMap = new Image();
+    this.world.miniMap.src = miniC.toDataURL('image/png', 1);
     return world;
+};
+MainStage.prototype.setBiome = function setBiome(tile, hNoise, mNoise, rNoise) {
+    var maxHeight = 100;
+    this.setElevation(tile, hNoise, maxHeight);
+    this.setTemperature(tile, this.world.h / 2);
+    this.setRainfall(tile, rNoise);
+    this.setMoisture(tile, mNoise);
+
+    if (!tile.type) {
+
+        //identify the type of the tile
+        if (tile.elevation < -0.10) {
+            tile.type = "OCEAN";
+            tile.img = this.AM.bundle['./assets/custom/tiles/ocean.png'];
+            tile.moisture = 1;
+        } else if (tile.elevation < 0.2) {
+            tile.type = "COAST";
+            tile.moisture = 0.1 * utils.randomIntFromInterval(7, 10);
+        } else if (tile.elevation < 0.25) {
+            tile.type = "BEACH";
+        } else if (tile.elevation < 0.4) {
+            if (tile.moisture > 0.66) tile.type = 'TAIGA';
+            else if (tile.moisture > 0.33) tile.type = 'SHRUBLAND';
+            else tile.type = 'TEMPERATE_DESERT';
+        } else if (tile.elevation < 0.5) {
+            if (tile.moisture > 0.83) tile.type = 'TEMPERATE_RAIN_FOREST';
+            else if (tile.moisture > 0.50) tile.type = 'TEMPERATE_DECIDUOUS_FOREST';
+            else if (tile.moisture > 0.16) tile.type = 'GRASSLAND';
+            else tile.type = 'TEMPERATE_DESERT';
+        } else if (tile.elevation < 0.75) {
+            if (tile.moisture > 0.66) tile.type = 'TROPICAL_RAIN_FOREST';
+            else if (tile.moisture > 0.33) tile.type = 'TROPICAL_SEASONAL_FOREST';
+            else if (tile.moisture > 0.16) {
+                tile.type = "GRASSLAND";
+                tile.img = this.AM.bundle['./assets/custom/tiles/grass.png'];
+            }
+            else tile.type = 'SUBTROPICAL_DESERT';
+        } else if (tile.elevation < 0.80) {
+            if (tile.moisture > 0.50) tile.type = 'SNOW';
+            else if (tile.moisture > 0.33) tile.type = 'TUNDRA';
+            else if (tile.moisture > 0.16) tile.type = 'BARE';
+            else this.type = 'SCORCHED';
+        } else if (tile.elevation < 0.89) {
+            tile.type = "ROCK";
+        } else {
+            tile.type = "SNOW";
+            tile.img = this.AM.bundle['./assets/custom/tiles/snow.png'];
+        }
+    }
+
+}
+;
+MainStage.prototype.setElevation = function setElevation(tile, noise, maxHeight) {
+    var val = noise.simplex2(tile.c / maxHeight, tile.r / maxHeight);
+    tile.elevation = +val.toFixed(2);
+};
+MainStage.prototype.setMoisture = function setMoisture(tile, noise) {
+    var val = noise.simplex2(tile.c / 100, tile.r / 100);
+    tile.moisture = Math.abs(val * tile.rainfall / tile.temperature).toFixed(2);
+};
+MainStage.prototype.setTemperature = function setTemperature(tile, equator) {
+    var distanceFromEq = Math.abs(equator - tile.r);
+    tile.temperature = (60 - 0.7 * distanceFromEq - 10 * Math.abs(tile.elevation)).toFixed(2);
+};
+MainStage.prototype.setRainfall = function setRainfall(tile, noise) {
+    var val = noise.simplex2(tile.c / 100, tile.r / 100);
+    tile.rainfall = Math.ceil(Math.abs((100 * val ) / tile.temperature) * 100);
 };
 
 //<editor-fold desc="# IO Handlers">
 
 MainStage.prototype.mouseMoveHandler = function (status) {
     var self = this;
-    var r,c;
+    var r, c;
     this.mouse = status.mouse;
     this.world.selectedTile = this.Camera.selectTile(this.world, this.mouse);
     //find the tile hovered
@@ -125,7 +184,7 @@ MainStage.prototype.keyDownHandler = function (status) {
 };
 MainStage.prototype.wheelHandler = function wheel(status) {
     var self = this;
-    this.Camera.changeZoom(status.mouse.mouseWheelDir);
+    //this.Camera.changeZoom(status.mouse.mouseWheelDir);
 };
 
 //</editor-fold>

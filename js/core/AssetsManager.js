@@ -51,7 +51,7 @@ AssetsManager.prototype.loadAssets = function loadAssets(assetList, next) {
 };
 /**
  * Manages the queue of assets loading
- * @param asset
+ * @param err
  * @param batch
  */
 AssetsManager.prototype.onLoadedCallback = function onLoadedCallback(asset, batch) {

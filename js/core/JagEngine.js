@@ -31,7 +31,7 @@ JagEngine.prototype.init = function init(inputManager){
     //attach event for resize
     window.addEventListener('resize', this.onResizeHandler.bind(this), false);
 
-
+    this.Camera = new Camera(0, 0, this.bctx.canvas.width, this.bctx.canvas.height);
     this.initialized= true;
     this.clear();
     // console.log(this.LOG_TAG + " init!");
@@ -65,7 +65,8 @@ JagEngine.prototype.loadStage = function loadStage(stage){
     this.currentStage.init(function(err){
         self.currentStage.active = true;
         if(self.currentStage.needCamera){
-            self.currentStage.Camera = new Camera(0, 0, self.bctx.canvas.width, self.bctx.canvas.height);
+            self.currentStage.Camera = self.Camera;
+            self.currentStage.initCamera();
         }
         self.clear();
         self.start();

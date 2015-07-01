@@ -2,36 +2,14 @@
  * Created by Dario on 12/06/2015.
  */
 
-var SettingsStage = function SettingsStage(AM, IO, current) {
+var SettingsStage = function SettingsStage(game) {
     Stage.call(this, "settings", {
         assets: [
-            {
-                id: "panel",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "panel_brown.png",
-                mime: "image/png"
-            },
-            {
-                id: "panelInset",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "panelInset_beige.png",
-                mime: "image/png"
-            },
-            {
-                id: "btn",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "buttonLong_beige.png",
-                mime: "image/png"
-            },
-            {
-                id: "btnDown",
-                path: window.location + '/../assets/uipack-rpg/PNG/',
-                file: "buttonLong_beige_pressed.png",
-                mime: "image/png"
-            },
+            './assets/uipack-rpg/PNG/buttonLong_beige.png',
+            './assets/uipack-rpg/PNG/buttonLong_beige_pressed.png'
         ],
         title: "Settings",
-        current: current,
+        current: game.currentConfig,
         buttons: [
             {
                 action: "save",
@@ -48,10 +26,22 @@ var SettingsStage = function SettingsStage(AM, IO, current) {
                 disabled: false
             }
         ]
-    }, AM, IO);
+    }, game);
     this.LOG_TAG = "SettingsStage:";
 };
 utils.inherit(SettingsStage, Stage);
+SettingsStage.prototype.registerObjects = function registerObjects() {
+    var btn;
+    Stage.prototype.registerObjects.call(this);
+    //updates the button status
+    for (var i = 0; i < this.config.buttons.length; i++) {
+        btn = this.config.buttons[i];
+        btn.disabledAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige.png'];
+        btn.pressedAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige_pressed.png'];
+        btn.hoverAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige.png'];
+        btn.defaultAsset = this.AM.bundle['./assets/uipack-rpg/PNG/buttonLong_beige.png'];
+    }
+};
 
 SettingsStage.prototype.render = function render(ctx, forceRedraw) {
     var panelSize = {
@@ -75,10 +65,6 @@ SettingsStage.prototype.render = function render(ctx, forceRedraw) {
     //draw buttons on the right
     for (var i = 0; i < this.config.buttons.length; i++) {
         btn = this.config.buttons[i];
-        btn.disabledAsset = this.AM.bundle.settings.btn;
-        btn.pressedAsset = this.AM.bundle.settings.btnDown;
-        btn.hoverAsset = this.AM.bundle.settings.btn;
-        btn.defaultAsset = this.AM.bundle.settings.btn;
         btn.size = {
             x: panelSize.x + panelSize.w - ui.styles.panel.padding - (buttonSize.w + ui.styles.buttons.margin.left + ui.styles.buttons.margin.right) * (i + 1),
             y: buttonSize.y,
