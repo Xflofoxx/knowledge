@@ -1,4 +1,27 @@
 {
-    "name": "knoledge",
-    "version": "0.1.0"
+  "name": "knoledge",
+  "version": "0.0.1",
+  "private": true,
+  "description": "[![Join the chat at https://gitter.im/Xflofoxx/knowledge](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Xflofoxx/knowledge?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)\r [![Stories in Ready](https://badge.waffle.io/Xflofoxx/knowledge.svg?label=ready&title=Ready)](http://waffle.io/Xflofoxx/knowledge)",
+  "main": "knowledge.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xflofoxx/knowledge.git"
+  },
+  "author": "Dario Olivini <xflofoxx@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Xflofoxx/knowledge/issues"
+  },
+  "homepage": "https://github.com/Xflofoxx/knowledge#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "express-handlebars": "^3.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
 }
