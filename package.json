@@ -18,8 +18,15 @@
   },
   "homepage": "https://github.com/Xflofoxx/knowledge#readme",
   "dependencies": {
+    "body-parser": "^1.15.0",
+    "compression": "^1.6.1",
+    "cookie-parser": "^1.4.1",
     "express": "^4.13.4",
-    "express-handlebars": "^3.0.0"
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.13.0",
+    "lodash": "^4.11.1",
+    "method-override": "^2.3.5",
+    "moment": "^2.13.0"
   },
   "devDependencies": {
     "mocha": "^2.4.5"
