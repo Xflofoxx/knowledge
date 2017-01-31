@@ -63,8 +63,8 @@ class Server {
     };
 
     start() {
-        this.app.listen(3000, ()=> {
-            console.log("Knowledge server started at http://localhost:3000");
+        this.app.listen(process.env.PORT, ()=> {
+            console.log(`Knowledge server started at http://localhost:${process.env.PORT}`);
         });
     };
 }
