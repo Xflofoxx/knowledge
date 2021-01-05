@@ -1,0 +1,9 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  border: 0;
+  background-color: white;
+}
+/* make the canvas the size of the viewport */
