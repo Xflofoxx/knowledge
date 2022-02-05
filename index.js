@@ -1,8 +1,18 @@
 'use strict';
+require("dotenv").config();
 
-const server = require("./server");
-const port = "8080";
+const {
+    SERVER_PORT,
+    MORGAN_LOG_FORMAT
+} = process.env;
 
-server.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+const Server = require("./server/Server");
+
+const Knowledge = new Server({
+    port: SERVER_PORT,
+    morganLogFormat: MORGAN_LOG_FORMAT
 });
+
+Knowledge.init()
+    .then(Knowledge.start())
+    .catch(err => console.error(err.message));

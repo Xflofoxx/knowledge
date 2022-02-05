@@ -9,14 +9,3 @@ html body {
   height: 100%;
   margin: 0;
 }
-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-#mainCanvas {
-  z-index: 1;
-}
-#backCanvas {
-  z-index: 0;
-}

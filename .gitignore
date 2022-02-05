@@ -50,3 +50,6 @@ crashlytics-build.properties
 
 # Ignore npm modules
 /node_modules
+
+# Ignore environment files
+.env 
