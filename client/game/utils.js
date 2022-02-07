@@ -1,6 +1,23 @@
 'use strict';
 
 const Utils = {
+    Assets: {
+        fetchJson: async(uri) => {
+            const assets = await fetch(uri);
+
+            return await assets.json();
+        },
+        fetchImage: async(uri) => {
+            var image = new Image();
+            image.src = uri;
+
+            return new Promise(resolve => {
+                image.onload = function() {
+                    resolve(this);
+                }
+            });
+        }
+    },
     Math: {
         /**
          * Accurate round 

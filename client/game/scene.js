@@ -2,9 +2,11 @@
 
 class Scene {
 
-    constructor(name, engine) {
-        this.name = name;
+    constructor(config, engine) {
+        this.name = config.id;
         this._engine = engine;
+        this._config = config.options;
+        this._assets = config.assets;
 
         this._gameObjects = [];
 
@@ -27,11 +29,22 @@ class Scene {
         gradient.addColorStop(0, 'white');
         gradient.addColorStop(1, 'black');
         this._engine._ctx.back.fillStyle = gradient;
-        this._engine._ctx.back.fillRect(0, 0, this._engine._canvas.back.width, this._engine._canvas.back.height);
+        this._engine._ctx.back.drawImage(this._engine.assetsManagers.get('logo'), 0, 0);
     }
 
     async loadScene() {
+        let asset;
         console.log("Loading scene " + this.name);
+
+        for (const a of this._assets) {
+            switch (a.type) {
+                case "image":
+                    asset = await Utils.Assets.fetchImage(a.uri);
+                    this._engine.assetsManagers.set(a.id, asset);
+                    break;
+            }
+        }
+
         return this;
     }
 

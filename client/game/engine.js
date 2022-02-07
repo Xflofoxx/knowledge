@@ -19,6 +19,8 @@ class Engine {
         this._fps = 0;
         this.scenes = [];
         this.currentScene = null;
+
+        this.assetsManagers = new Map();
     }
 
     _resizeCanvas(canvas) {
@@ -68,15 +70,14 @@ class Engine {
         this._hud = document.getElementById(this._config.ids.hud);
 
         console.log("Fetch assets manifest");
-        let assets = await fetch("/assets/gameAssets.json")
-        assets = await assets.json();
+        const scenes = await Utils.Assets.fetchJson("/assets/gameAssets.json");
 
-        // TODO load scenes
-        const splashScene = new Scene("splash", this);
+        // Load scenes
+        for (const s of scenes) {
+            const scene = new Scene(s, this);
 
-        this.scenes.push(await splashScene.loadScene());
-
-        console.log(assets);
+            this.scenes.push(scene);
+        }
     }
 
     async start() {
@@ -85,6 +86,7 @@ class Engine {
         // Select first scene
         this.currentScene = this.scenes.find(s => s.name === "splash");
 
+        await this.currentScene.loadScene();
         // Start The proper game loop
         this.gameLoop(this._oldTimeStamp);
     }
