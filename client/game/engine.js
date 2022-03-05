@@ -1,5 +1,12 @@
 'use strict';
 
+class GameStatus {
+    constructor() {
+        this.isRunning = false;
+        this.isGameOver = false;
+    }
+}
+
 class Engine {
     constructor(config) {
         this._config = config;
@@ -12,15 +19,19 @@ class Engine {
             main: null,
             back: null
         };
-
-        this._hud = null;
         this._playTime = 0.000;
         this._oldTimeStamp = 0;
         this._fps = 0;
-        this.scenes = [];
-        this.currentScene = null;
+
 
         this.assetsManagers = new Map();
+        this.sceneFSM = new SceneFSM();
+        this._sceneIDs = {
+            splash: 0,
+            game: 0
+        }
+        this.gameStatus = new GameStatus();
+        this.IM = new InputManager(this);
     }
 
     _resizeCanvas(canvas) {
@@ -30,12 +41,13 @@ class Engine {
 
     _draw(secondsPassed) {
 
-        // Draw currnt scene
-        this.currentScene.draw(secondsPassed);
+        // Draw current scene
+        this.sceneFSM.draw(secondsPassed);
 
         if (this._config.debug) {
             // Draw FPS
             this._drawFps(secondsPassed);
+            this._drawIM();
         }
     }
     _drawFps(secondsPassed) {
@@ -43,17 +55,33 @@ class Engine {
         this._fps = Math.round(1 / secondsPassed);
 
         // Draw number to the screen
+        this._ctx.back.textAlign = "left";
         this._ctx.back.font = '12px Arial';
         this._ctx.back.fillStyle = 'black';
         this._ctx.back.fillText("FPS: " + this._fps, 10, 17);
-        this._ctx.back.fillText("Play time: " + Utils.Math.roundAccuratly(this._playTime, 3), 10, this._canvas.back.height - 5);
+        if (this.gameStatus.isRunning) {
+            this._ctx.back.fillText("Play time: " + Utils.Math.roundAccuratly(this._playTime, 3), 10, this._canvas.back.height - 5);
+        } else {
+            this._ctx.back.fillText("Game is not running.", 10, this._canvas.back.height - 5);
+        }
+        this._ctx.back.textAlign = "right";
+        this._ctx.back.fillText(this.sceneFSM.currScene.drawSceneInfo(), this._canvas.back.width - 5, this._canvas.back.height - 5);
+    }
+
+    _drawIM() {
+        this.IM.draw();
     }
 
     _update(secondsPassed) {
         this._playTime += secondsPassed;
 
-        // Update currnt scene
-        this.currentScene.update(secondsPassed);
+        // Update current scene
+        this.sceneFSM.update(secondsPassed);
+    }
+
+    _lateUpdate(secondsPassed) {
+        // Update current scene
+        this.sceneFSM.lateUpdate(secondsPassed);
     }
 
     async init() {
@@ -67,26 +95,23 @@ class Engine {
 
         this._ctx.main = this._canvas.main.getContext('2d');
         this._ctx.back = this._canvas.back.getContext('2d');
-        this._hud = document.getElementById(this._config.ids.hud);
 
-        console.log("Fetch assets manifest");
-        const scenes = await Utils.Assets.fetchJson("/assets/gameAssets.json");
+        this.IM.init(this._canvas.main);
 
-        // Load scenes
-        for (const s of scenes) {
-            const scene = new Scene(s, this);
+        // Craetes all the scenes
+        const splashScreenScene = new SplashScreenScene(this);
+        const gameScene = new GameScene(this);
 
-            this.scenes.push(scene);
-        }
+        this._sceneIDs.splash = await this.sceneFSM.add(splashScreenScene);
+        this._sceneIDs.game = await this.sceneFSM.add(gameScene);
+
+        splashScreenScene.targetSceneID = this._sceneIDs.game;
     }
 
-    async start() {
+    start() {
         console.log("Game loop started");
 
-        // Select first scene
-        this.currentScene = this.scenes.find(s => s.name === "splash");
-
-        await this.currentScene.loadScene();
+        this.sceneFSM.switchTo(this._sceneIDs.splash);
         // Start The proper game loop
         this.gameLoop(this._oldTimeStamp);
     }
@@ -99,7 +124,9 @@ class Engine {
         secondsPassed = Math.min(secondsPassed, 0.1);
         this._oldTimeStamp = timeStamp;
 
+        // Perform game update
         this._update(secondsPassed);
+        this._lateUpdate(secondsPassed);
 
         // Perform the drawing operation
         this._draw(secondsPassed);

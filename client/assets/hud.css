@@ -16,6 +16,7 @@ canvas {
 }
 #mainCanvas {
   z-index: 1;
+  background: transparent;
 }
 #backCanvas {
   z-index: 0;

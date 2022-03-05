@@ -1,9 +1,0 @@
-[{
-    "id": "splash",
-    "assets": [{
-        "id": "logo",
-        "type": "image",
-        "uri": "/assets/lumi.png"
-    }],
-    "options": {}
-}]
