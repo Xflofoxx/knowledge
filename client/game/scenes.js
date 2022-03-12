@@ -72,6 +72,12 @@ class SceneFSM {
         }
     }
 
+    propagateClick(button) {
+        if (this.currScene) {
+            this.currScene.propagateClick(button);
+        }
+    }
+
 }
 
 
@@ -91,6 +97,12 @@ class Scene {
     }
     get mainCanvas() {
         return this._engine._canvas.main;
+    }
+    get backCanvasCtx() {
+        return this._engine._ctx.back;
+    }
+    get mainCanvasCtx() {
+        return this._engine._ctx.main;
     }
 
     _clearScene() {
@@ -130,6 +142,15 @@ class Scene {
         console.log("Scene.onDeactivate(): name = " + this.name);
     }
 
+    propagateClick(button) {
+        // Loop over all game objects
+        for (let i = 0; i < this._gameObjects.length; i++) {
+            if (this._gameObjects[i].hasMouseOver) {
+                this._gameObjects[i].onClick(button);
+            }
+        }
+    }
+
     draw(secondsPassed) {
         this._clearScene();
 
@@ -147,7 +168,10 @@ class Scene {
     }
 
     lateUpdate(secondsPassed) {
-
+        // Loop over all game objects
+        for (let i = 0; i < this._gameObjects.length; i++) {
+            this._gameObjects[i].lateUpdate(secondsPassed);
+        }
     }
 
     drawSceneInfo() {
