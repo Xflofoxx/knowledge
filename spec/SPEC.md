@@ -92,9 +92,50 @@ Il gioco ruota attorno al concetto di **Knowledge** (Conoscenza). Ogni oggetto s
 
 ### 4.1 Creazione Personaggio
 
-- Nome
-- Aspetto fisico (personalizzazione base)
-- Background (opzionale, influenza statistiche iniziali)
+#### Informazioni Base
+- **Nome:** Nome personalizzato del personaggio
+- **Sesso:** Maschio, Femmina, Non-Binario
+- **Età di partenza:** 18-80 anni (influisce sulle statistiche)
+
+#### Background
+Influenza le statistiche iniziali del personaggio:
+
+| Background | Bonus Statistiche | Descrizione |
+|------------|-------------------|-------------|
+| Warrior | +20% | Combattente esperto, bonus forza |
+| Scholar | +10% | Studioso, bonus intelligenza |
+| Merchant | +0% | Commerciante, accesso commercio |
+| Farmer | +10% | Agricoltore, bonus vitalità |
+| Hunter | +15% | Cacciatore, bonus destrezza |
+| Noble | +5% | Nobile, bonus carisma |
+| Outcast | -10% | Fuorilegge, svantaggio iniziale |
+
+#### Fisico
+- **Tipo corpo:** Slim, Average, Athletic, Heavy, Muscular
+- **Altezza:** Scala 0.5x - 2.0x (base: 1.75m maschio, 1.60m femmina)
+- **Larghezza:** Scala 0.5x - 2.0x
+- **Massa:** Scala 0.5x - 2.0x
+
+#### Aspetto
+- **Colore capelli:** Selezione tramite slider Hue
+- **Colore pelle:** Selezione tramite slider Hue
+- **Colore occhi:** Selezione tramite slider Hue
+
+#### Personalità
+- **Tratto primario:** Brave, Cautious, Curious, Greedy, Kind, Aggressive, Peaceful, Ambitious
+- **Tratto secondario:** Stessi valori del primario
+
+#### Interfaccia Editor
+L'editor dispone di 4 tab:
+1. **Base:** Nome, sesso, età, background
+2. **Body:** Tipo corpo, altezza, larghezza, massa
+3. **Appearance:** Colori capelli, pelle, occhi
+4. **Personality:** Tratti di personalità
+
+L'editor include:
+- Pulsante Random per generare un personaggio casuale
+- Pulsante Reset per ripristinare i valori default
+- Preview in tempo reale delle statistiche
 
 ### 4.2 statistiche Base
 
@@ -318,12 +359,60 @@ Il gioco presenta un ecosistema variegato ispirato alla biodiversità terrestre.
 
 ---
 
-## 10. Tecnologie Unity Richieste
+## 10. Stile Grafico
 
-- **Rendering:** Universal Render Pipeline (URP)
+### 10.1 Filosofia Visiva
+
+**Stile: Isometrico Schematico / Low-Poly**
+
+Il gioco adotta uno stile visivo **isometrico schematico** che unisce:
+- **Prospettiva isometrica** per la visualizzazione del mondo
+- **Modelli low-poly** con forme geometriche semplici e riconoscibili
+- **Colori piatti e saturi** per una lettura immediata degli elementi
+- **Silhouette distintive** per identificare rapidamente oggetti e personaggi
+
+### 10.2 Caratteristiche Visive
+
+| Elemento | Stile |
+|----------|-------|
+| **Personaggi** | Figure umanoidi semplici, proporzioni stilizzate |
+| **Ambienti** | Blocchi costruttivi, forme geometriche basilari |
+| **Oggetti** | Icone 3D riconoscibili, dettagli essenziali |
+| **UI** | Icone piatte, colori vivaci, testo leggibile |
+| **Animali** | Modelli low-poly con movenze stilizzate |
+| **Vegetazione** | Alberi e piante stilizzati, forme semplici |
+
+### 10.3 Palette Colori per Era
+
+| Era | Palette Principale |
+|-----|-------------------|
+| Pietra | Terra, marrone, verde foresta, grigio pietra |
+| Bronzo | Ocra, bronzo, verde vigna, blu terra |
+| Ferro | Grigio metallico, rosso mattone, legno scuro |
+| Medievale | Pietra grigia, legno, rosso scarlatto, oro |
+| Rinascimento | Blu notte, verde salvia, marrone scurp, bianco panna |
+| Industriale | Grigio acciaio, nero fuliggine, arancione ruggine, marrone |
+| Moderno | Bianco, grigio chiaro, blu metallico, vetro |
+| Spaziale | Nero, blu profondo, bianco, argento, viola |
+
+### 10.4 Risorse Grafiche
+
+**Asset Gratuiti Utilizzabili:**
+- **Kenney Nature Kit** (330 modelli naturali)
+- **Unity Asset Store Free** - pacchetti low-poly
+- **Poly Haven** - modelli 3D gratuiti (CC0)
+- **Kenney Assets** - pack completi CC0
+
+---
+
+## 11. Tecnologie Unity Richieste
+
+- **Rendering:** Universal Render Pipeline (URP) - ottimizzato per low-poly
+- **TipoCamera:** Isometrica (Orthographic)
+- **Angolo Camera:** 45° su asse Y, rotazione 45° su X
 - **Fisica:** Unity Physics
 - **AI:** NavMesh per NPC
-- **UI:** Unity UI (uGUI) o UI Toolkit
+- **UI:** Unity UI (uGUI) - stilizzata
 - **Audio:** Unity Audio System
 - **Salvataggio:** PlayerPrefs o sistema custom JSON
 
@@ -342,7 +431,43 @@ Il gioco presenta un ecosistema variegato ispirato alla biodiversità terrestre.
 
 ---
 
-## 11. Milestone di Sviluppo
+## 12. Struttura Scene di Gioco
+
+### 12.1 Scene Principali
+
+| Scena | Descrizione | Contenuti |
+|-------|-------------|-----------|
+| `MainMenu` | Menu principale | Titolo, New Game, Continue, Options, Credits |
+| `WorldMap` | Mappa mondiale | Selezione era, progressione, viaggio tra zone |
+| `StoneAge` | Età della Pietra | Foresta, caverna, lago |
+| `BronzeAge` | Età del Bronzo | Villaggio, miniera, fattoria |
+| `IronAge` | Età del Ferro | Città fortificata, mercato |
+| `Medieval` | Medioevo | Castello, borgo, foresta |
+| `Renaissance` | Rinascimento | Porto, accademia, piazza |
+| `Industrial` | Era Industriale | Fabbrica, stazione, città |
+| `Modern` | Era Moderna | Città, laboratorio |
+| `Space` | Era Spaziale | Base spaziale, navicella, pianeta |
+| `Crafting` | Editor combinazione | Sistema crafting (overlay) |
+| `Inventory` | Inventario | Gestione oggetti (overlay) |
+
+### 12.2 Scene di Sistema
+
+| Scena | Descrizione |
+|-------|-------------|
+| `Boot` | Caricamento iniziale, logo |
+| `Loading` | Schermata di caricamento |
+| `CharacterCreation` | Creazione personaggio |
+| `Settings` | Impostazioni di gioco |
+
+### 12.3 Ordine di Caricamento
+
+```
+Boot → MainMenu → CharacterCreation → WorldMap → [Era] → [Zone]
+```
+
+---
+
+## 13. Milestone di Sviluppo
 
 1. **Prototype:** Movimentazione personaggio, raccolta risorse base, primo sistema di combinazione, ecosistema animale base
 2. **Alpha 1:** Sistema discovery funzionante con 20 combinazioni, sistema climatico base, fauna base per prima era
@@ -353,7 +478,7 @@ Il gioco presenta un ecosistema variegato ispirato alla biodiversità terrestre.
 
 ---
 
-## 12. Note Aperte
+## 14. Note Aperte
 
 - [ ] Definire lista completa combinazioni (albero tecnologico)
 - [ ] Bilanciare sistema di combattimento e caccia

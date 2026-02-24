@@ -53,3 +53,33 @@ crashlytics-build.properties
 
 # Ignore environment files
 .env 
+
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Pp]rojectSettings/
+*.unitypackage
+*.asset
+*.mat
+*.prefab
+*.controller
+*.anim
+*.sprite
+*.png
+*.jpg
+*.psd
+*.fbx
+*.obj
+*.wav
+*.mp3
+*.ogg
+*.controller
+*.compute
+*/.DS_Store
+Thumbs.db

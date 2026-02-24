@@ -40,6 +40,7 @@ namespace Knowledge.Game
         private readonly Dictionary<string, int> populationCounts = new();
 
         public int SpeciesCount => allSpecies.Count;
+        public IReadOnlyList<AnimalSpecies> AllSpecies => allSpecies;
         public bool IsEnabled => ecosystemEnabled;
 
         private void Awake()

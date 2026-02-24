@@ -105,6 +105,9 @@ namespace Knowledge.Game
 
         public bool IsTechnologyUnlocked(string technology) =>
             !string.IsNullOrEmpty(technology) && unlockedTechnologies.Contains(technology);
+
+        public int GetTotalRecipesCount() => TotalRecipes;
+        public int GetDiscoveredCount() => DiscoveredCount;
     }
 
     [System.Serializable]

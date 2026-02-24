@@ -3,38 +3,56 @@ using UnityEngine.UI;
 
 namespace Knowledge.Game
 {
-    public class UIManager : MonoBehaviour
+    public sealed class UIManager : MonoBehaviour
     {
+        #region Constants
+        private static readonly string[] Eras = { "Pietra", "Bronzo", "Ferro", "Medioevo", "Rinascimento", "Industriale", "Moderna", "Spazio" };
+        private const int HoursPerDay = 24;
+        private const int MinutesPerHour = 60;
+        private const int SecondsPerHour = 3600;
+        private const int SecondsPerMinute = 60;
+        #endregion
+
         public static UIManager Instance { get; private set; }
 
         [Header("HUD Elements")]
-        public Slider healthBar;
-        public Slider energyBar;
-        public Slider hungerBar;
-        public Slider thirstBar;
-        public Text knowledgePointsText;
-        public Text levelText;
-        public Text eraText;
+        [SerializeField] private Slider healthBar;
+        [SerializeField] private Slider energyBar;
+        [SerializeField] private Slider hungerBar;
+        [SerializeField] private Slider thirstBar;
+        [SerializeField] private Text knowledgePointsText;
+        [SerializeField] private Text levelText;
+        [SerializeField] private Text eraText;
 
         [Header("Panels")]
-        public GameObject inventoryPanel;
-        public GameObject craftingPanel;
-        public GameObject pauseMenu;
-        public GameObject dialogPanel;
-        public GameObject mapPanel;
+        [SerializeField] private GameObject inventoryPanel;
+        [SerializeField] private GameObject craftingPanel;
+        [SerializeField] private GameObject pauseMenu;
+        [SerializeField] private GameObject dialogPanel;
+        [SerializeField] private GameObject mapPanel;
 
         [Header("Info Display")]
-        public Text weatherText;
-        public Text locationText;
-        public Text timeText;
+        [SerializeField] private Text weatherText;
+        [SerializeField] private Text locationText;
+        [SerializeField] private Text timeText;
 
-        private bool inventoryOpen = false;
-        private bool craftingOpen = false;
-        private bool mapOpen = false;
+        private bool inventoryOpen;
+        private bool craftingOpen;
+        private bool mapOpen;
+
+        public bool IsInventoryOpen => inventoryOpen;
+        public bool IsCraftingOpen => craftingOpen;
+        public bool IsMapOpen => mapOpen;
+        public bool IsPauseMenuOpen => pauseMenu?.activeSelf ?? false;
 
         private void Awake()
         {
-            if (Instance != null) return;
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             Instance = this;
         }
 
@@ -47,11 +65,11 @@ namespace Knowledge.Game
         {
             if (Input.GetKeyDown(KeyCode.I))
                 ToggleInventory();
-            if (Input.GetKeyDown(KeyCode.C))
+            else if (Input.GetKeyDown(KeyCode.C))
                 ToggleCrafting();
-            if (Input.GetKeyDown(KeyCode.M))
+            else if (Input.GetKeyDown(KeyCode.M))
                 ToggleMap();
-            if (Input.GetKeyDown(KeyCode.Escape))
+            else if (Input.GetKeyDown(KeyCode.Escape))
                 TogglePause();
 
             UpdateHUD();
@@ -59,34 +77,44 @@ namespace Knowledge.Game
 
         public void UpdateHUD()
         {
-            var player = GameManager.Instance.Player;
+            var player = GameManager.Instance?.Player;
             if (player == null) return;
 
-            if (healthBar) healthBar.value = player.Health / player.maxHealth;
-            if (energyBar) energyBar.value = player.Energy / player.maxEnergy;
-            if (hungerBar) hungerBar.value = player.Hunger / player.maxHunger;
-            if (thirstBar) thirstBar.value = player.Thirst / player.maxThirst;
+            UpdateBars(player);
+            UpdateTexts(player);
+        }
 
+        private void UpdateBars(PlayerController player)
+        {
+            if (healthBar) healthBar.value = player.Health / player.MaxHealth;
+            if (energyBar) energyBar.value = player.Energy / player.MaxEnergy;
+            if (hungerBar) hungerBar.value = player.Hunger / player.MaxHunger;
+            if (thirstBar) thirstBar.value = player.Thirst / player.MaxThirst;
+        }
+
+        private void UpdateTexts(PlayerController player)
+        {
             if (knowledgePointsText)
-                knowledgePointsText.text = $"KP: {GameManager.Instance.TotalKnowledgePoints}";
+                knowledgePointsText.text = $"KP: {GameManager.Instance?.TotalKnowledgePoints ?? 0}";
             
             if (levelText)
-                levelText.text = $"LVL: {player.level}";
+                levelText.text = $"LVL: {player.Level}";
 
-            if (eraText)
+            if (eraText && GameManager.Instance != null)
             {
-                string[] eras = { "Pietra", "Bronzo", "Ferro", "Medioevo", "Rinascimento", "Industriale", "Moderna", "Spazio" };
-                eraText.text = $"Era: {eras[GameManager.Instance.currentEra]}";
+                int eraIndex = GameManager.Instance.CurrentEra;
+                eraIndex = Mathf.Clamp(eraIndex, 0, Eras.Length - 1);
+                eraText.text = $"Era: {Eras[eraIndex]}";
             }
 
-            if (weatherText && WeatherSystem.Instance != null)
-                weatherText.text = WeatherSystem.Instance.GetWeatherDescription();
+            if (weatherText)
+                weatherText.text = WeatherSystem.Instance?.GetWeatherDescription() ?? string.Empty;
 
-            if (timeText)
+            if (timeText && GameManager.Instance != null)
             {
-                float totalSeconds = GameManager.Instance.gameTime;
-                int hours = (int)(totalSeconds / 3600) % 24;
-                int minutes = (int)(totalSeconds / 60) % 60;
+                float totalSeconds = GameManager.Instance.GameTime;
+                int hours = (int)(totalSeconds / SecondsPerHour) % HoursPerDay;
+                int minutes = (int)(totalSeconds / SecondsPerMinute) % MinutesPerHour;
                 timeText.text = $"{hours:D2}:{minutes:D2}";
             }
         }
@@ -97,10 +125,7 @@ namespace Knowledge.Game
                 knowledgePointsText.text = $"KP: {kp}";
         }
 
-        public void UpdateAllDisplay()
-        {
-            UpdateHUD();
-        }
+        public void UpdateAllDisplay() => UpdateHUD();
 
         public void ToggleInventory()
         {
@@ -124,25 +149,22 @@ namespace Knowledge.Game
         {
             if (pauseMenu)
             {
-                pauseMenu.SetActive(!pauseMenu.activeSelf);
-                GameManager.Instance.gamePaused = pauseMenu.activeSelf;
+                bool isActive = !pauseMenu.activeSelf;
+                pauseMenu.SetActive(isActive);
+                GameManager.Instance.IsPaused = isActive;
             }
         }
 
         public void ShowDialog(string npcName, string[] lines)
         {
             if (dialogPanel)
-            {
                 dialogPanel.SetActive(true);
-            }
         }
 
         public void HideDialog()
         {
             if (dialogPanel)
-            {
                 dialogPanel.SetActive(false);
-            }
         }
 
         public void ShowMessage(string message, float duration = 3f)

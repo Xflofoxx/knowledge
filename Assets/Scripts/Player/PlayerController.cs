@@ -2,6 +2,8 @@ using UnityEngine;
 
 namespace Knowledge.Game
 {
+    public enum Gender { Male, Female, NonBinary }
+
     [RequireComponent(typeof(CharacterController))]
     public sealed class PlayerController : MonoBehaviour
     {
