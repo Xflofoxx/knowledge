@@ -1,42 +1,66 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Knowledge.Game
 {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour
+    public sealed class PlayerController : MonoBehaviour
     {
+        #region Constants
+        private const float DefaultMaxHealth = 100f;
+        private const float DefaultMaxEnergy = 100f;
+        private const float DefaultMaxHunger = 100f;
+        private const float DefaultMaxThirst = 100f;
+        private const float DefaultMaxHappiness = 100f;
+        private const float BaseMoveSpeed = 5f;
+        private const float SprintSpeed = 8f;
+        private const float RotationSpeed = 10f;
+        private const float Gravity = -9.81f;
+        private const float HungerDrain = 0.5f;
+        private const float ThirstDrain = 0.8f;
+        private const float EnergyDrain = 0.2f;
+        private const float HealthDrainOnDepletion = 2f;
+        private const int MinSocialStatus = 1;
+        private const int MaxSocialStatus = 100;
+        private const float LevelUpMultiplier = 1.5f;
+        #endregion
+
+        [Header("Character Customization")]
+        [SerializeField] private Gender gender = Gender.Male;
+        [SerializeField] [Range(18, 100)] private int age = 25;
+        [SerializeField] [Range(0.5f, 2f)] private float height = 1f;
+        [SerializeField] [Range(0.5f, 2f)] private float bodyWidth = 1f;
+
         [Header("Movement")]
-        public float moveSpeed = 5f;
-        public float sprintSpeed = 8f;
-        public float rotationSpeed = 10f;
-        public float gravity = -9.81f;
+        [SerializeField] private float moveSpeed = BaseMoveSpeed;
+        [SerializeField] private float sprintSpeed = SprintSpeed;
+        [SerializeField] private float rotationSpeed = RotationSpeed;
+        [SerializeField] private float gravity = Gravity;
 
         [Header("Stats")]
-        public float maxHealth = 100f;
-        public float maxEnergy = 100f;
-        public float maxHunger = 100f;
-        public float maxThirst = 100f;
-        public float maxHappiness = 100f;
+        [SerializeField] private float maxHealth = DefaultMaxHealth;
+        [SerializeField] private float maxEnergy = DefaultMaxEnergy;
+        [SerializeField] private float maxHunger = DefaultMaxHunger;
+        [SerializeField] private float maxThirst = DefaultMaxThirst;
+        [SerializeField] private float maxHappiness = DefaultMaxHappiness;
 
         [Header("Skill Attributes")]
-        public float strength = 10f;
-        public float dexterity = 10f;
-        public float intelligence = 10f;
-        public float charisma = 10f;
-        public float vitality = 10f;
+        [SerializeField] private float strength = 10f;
+        [SerializeField] private float dexterity = 10f;
+        [SerializeField] private float intelligence = 10f;
+        [SerializeField] private float charisma = 10f;
+        [SerializeField] private float vitality = 10f;
 
         [Header("Social Status")]
-        [Range(1, 100)] public int socialStatus = 1;
+        [SerializeField] [Range(MinSocialStatus, MaxSocialStatus)] private int socialStatus = 1;
 
         [Header("Experience")]
-        public int level = 1;
-        public float experience = 0f;
-        public float experienceToNextLevel = 100f;
+        [SerializeField] private int level = 1;
+        [SerializeField] private float experience = 0f;
+        [SerializeField] private float experienceToNextLevel = 100f;
 
         [Header("Inventory")]
-        public int inventoryCapacity = 50;
-        public float maxCarryWeight = 50f;
+        [SerializeField] private int inventoryCapacity = 50;
+        [SerializeField] private float maxCarryWeight = 50f;
 
         private CharacterController controller;
         private Vector3 velocity;
@@ -47,16 +71,46 @@ namespace Knowledge.Game
         private float currentThirst;
         private float currentHappiness;
 
+        #region Properties
         public float Health => currentHealth;
         public float Energy => currentEnergy;
         public float Hunger => currentHunger;
         public float Thirst => currentThirst;
         public float Happiness => currentHappiness;
+        public float MaxHealth => maxHealth;
+        public float MaxEnergy => maxEnergy;
+        public float MaxHunger => maxHunger;
+        public float MaxThirst => maxThirst;
+        public float MaxHappiness => maxHappiness;
+        public int Level => level;
+        public int SocialStatus => socialStatus;
+        public Gender Gender => gender;
+        public int Age => age;
+        #endregion
 
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
             ResetStats();
+            ApplyBodyDimensions();
+        }
+
+        public void ApplyBodyDimensions()
+        {
+            if (controller == null) return;
+            
+            controller.radius = 0.5f * bodyWidth;
+            controller.height = 2f * height;
+            transform.localScale = new Vector3(bodyWidth, height, bodyWidth);
+        }
+
+        public void UpdateCharacter(Gender newGender, int newAge, float newHeight, float newBodyWidth)
+        {
+            gender = newGender;
+            age = newAge;
+            height = newHeight;
+            bodyWidth = newBodyWidth;
+            ApplyBodyDimensions();
         }
 
         private void ResetStats()
@@ -70,7 +124,7 @@ namespace Knowledge.Game
 
         private void Update()
         {
-            if (GameManager.Instance.gamePaused) return;
+            if (GameManager.Instance?.IsPaused == true) return;
 
             isGrounded = controller.isGrounded;
             if (isGrounded && velocity.y < 0)
@@ -87,9 +141,9 @@ namespace Knowledge.Game
             bool sprint = Input.GetKey(KeyCode.LeftShift);
 
             Vector3 move = transform.right * x + transform.forward * z;
-            float speed = sprint ? sprintSpeed : moveSpeed;
+            float currentSpeed = sprint ? sprintSpeed : moveSpeed;
 
-            controller.Move(move * speed * Time.deltaTime);
+            controller.Move(move * currentSpeed * Time.deltaTime);
 
             if (Input.GetKey(KeyCode.Q))
                 transform.Rotate(Vector3.up, -rotationSpeed * Time.deltaTime);
@@ -104,12 +158,12 @@ namespace Knowledge.Game
         {
             float delta = Time.deltaTime;
 
-            currentHunger -= delta * 0.5f;
-            currentThirst -= delta * 0.8f;
-            currentEnergy -= delta * 0.2f;
+            currentHunger -= delta * HungerDrain;
+            currentThirst -= delta * ThirstDrain;
+            currentEnergy -= delta * EnergyDrain;
 
             if (currentHunger <= 0 || currentThirst <= 0)
-                currentHealth -= delta * 2f;
+                currentHealth -= delta * HealthDrainOnDepletion;
 
             if (currentHealth <= 0)
                 HandleDeath();
@@ -130,20 +184,9 @@ namespace Knowledge.Game
             transform.position = Vector3.zero;
         }
 
-        public void Eat(float amount)
-        {
-            currentHunger = Mathf.Min(currentHunger + amount, maxHunger);
-        }
-
-        public void Drink(float amount)
-        {
-            currentThirst = Mathf.Min(currentThirst + amount, maxThirst);
-        }
-
-        public void Rest(float amount)
-        {
-            currentEnergy = Mathf.Min(currentEnergy + amount, maxEnergy);
-        }
+        public void Eat(float amount) => currentHunger = Mathf.Min(currentHunger + amount, maxHunger);
+        public void Drink(float amount) => currentThirst = Mathf.Min(currentThirst + amount, maxThirst);
+        public void Rest(float amount) => currentEnergy = Mathf.Min(currentEnergy + amount, maxEnergy);
 
         public void AddExperience(float amount)
         {
@@ -156,13 +199,13 @@ namespace Knowledge.Game
         {
             level++;
             experience -= experienceToNextLevel;
-            experienceToNextLevel *= 1.5f;
+            experienceToNextLevel *= LevelUpMultiplier;
             Debug.Log($"Level up! Now level {level}");
         }
 
         public void ModifySocialStatus(int amount)
         {
-            socialStatus = Mathf.Clamp(socialStatus + amount, 1, 100);
+            socialStatus = Mathf.Clamp(socialStatus + amount, MinSocialStatus, MaxSocialStatus);
         }
     }
 }

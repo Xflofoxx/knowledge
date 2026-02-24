@@ -8,29 +8,37 @@ namespace Knowledge.Game
     [System.Serializable]
     public class NPCRelationship
     {
-        public string npcName;
-        public int reputation = 0;
-        public bool isFriend = false;
-        public bool isEnemy = false;
+        public string npcName = string.Empty;
+        public int reputation;
+        public bool isFriend;
+        public bool isEnemy;
     }
 
-    public class NPCManager : MonoBehaviour
+    public sealed class NPCManager : MonoBehaviour
     {
         public static NPCManager Instance { get; private set; }
 
         [Header("NPC Registry")]
-        public List<NPCData> allNPCs = new();
-        public Dictionary<NPCFaction, int> factionReputations = new();
+        [SerializeField] private List<NPCData> allNPCs = new();
+        [SerializeField] private Dictionary<NPCFaction, int> factionReputations = new();
 
         [Header("Interaction Settings")]
-        public float interactionRange = 3f;
-        public LayerMask npcLayer;
+        [SerializeField] private float interactionRange = 3f;
+        [SerializeField] private LayerMask npcLayer;
 
-        private Dictionary<string, NPCRelationship> relationships = new();
+        private readonly Dictionary<string, NPCRelationship> relationships = new();
+
+        public IReadOnlyList<NPCData> NPCs => allNPCs;
+        public float InteractionRange => interactionRange;
 
         private void Awake()
         {
-            if (Instance != null) return;
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             Instance = this;
             InitializeFactions();
         }
@@ -45,59 +53,55 @@ namespace Knowledge.Game
 
         public void AddNPC(NPCData npc)
         {
-            allNPCs.Add(npc);
+            if (npc != null && !string.IsNullOrEmpty(npc.name))
+                allNPCs.Add(npc);
         }
 
         public void InteractWithNPC(string npcName)
         {
+            if (string.IsNullOrEmpty(npcName)) return;
+
             if (!relationships.ContainsKey(npcName))
-            {
                 relationships[npcName] = new NPCRelationship { npcName = npcName };
-            }
 
             var npc = allNPCs.Find(n => n.name == npcName);
-            if (npc != null)
-            {
-                npc.OnInteract?.Invoke();
-            }
+            npc?.OnInteract?.Invoke();
         }
 
         public void ModifyReputation(string npcName, int amount)
         {
-            if (!relationships.ContainsKey(npcName))
-            {
-                relationships[npcName] = new NPCRelationship { npcName = npcName };
-            }
+            if (string.IsNullOrEmpty(npcName)) return;
 
-            relationships[npcName].reputation = Mathf.Clamp(
-                relationships[npcName].reputation + amount, -100, 100);
+            if (!relationships.ContainsKey(npcName))
+                relationships[npcName] = new NPCRelationship { npcName = npcName };
 
             var rel = relationships[npcName];
+            rel.reputation = Mathf.Clamp(rel.reputation + amount, -100, 100);
             rel.isFriend = rel.reputation > 50;
             rel.isEnemy = rel.reputation < -50;
 
-            Debug.Log($"{npcName} reputation: {relationships[npcName].reputation}");
+            Debug.Log($"{npcName} reputation: {rel.reputation}");
         }
 
         public void ModifyFactionReputation(NPCFaction faction, int amount)
         {
-            factionReputations[faction] = Mathf.Clamp(
-                factionReputations[faction] + amount, 0, 100);
+            if (factionReputations.TryGetValue(faction, out int current))
+                factionReputations[faction] = Mathf.Clamp(current + amount, 0, 100);
         }
 
         public int GetReputation(string npcName)
         {
-            return relationships.ContainsKey(npcName) ? relationships[npcName].reputation : 0;
+            return relationships.TryGetValue(npcName, out var rel) ? rel.reputation : 0;
         }
 
         public int GetFactionReputation(NPCFaction faction)
         {
-            return factionReputations.ContainsKey(faction) ? factionReputations[faction] : 50;
+            return factionReputations.TryGetValue(faction, out int rep) ? rep : 50;
         }
 
         public bool IsFriend(string npcName)
         {
-            return relationships.ContainsKey(npcName) && relationships[npcName].isFriend;
+            return relationships.TryGetValue(npcName, out var rel) && rel.isFriend;
         }
 
         public List<NPCData> GetNPCsInRange(Vector3 position)
@@ -106,38 +110,27 @@ namespace Knowledge.Game
             foreach (var npc in allNPCs)
             {
                 if (Vector3.Distance(position, npc.position) <= interactionRange)
-                {
                     npcsInRange.Add(npc);
-                }
             }
             return npcsInRange;
         }
 
         public void CompleteQuest(string questName)
         {
-            ModifySocialStatus(5);
-            GameManager.Instance.AddKnowledgePoints(20);
-        }
-
-        private void ModifySocialStatus(int amount)
-        {
-            var player = GameManager.Instance.Player;
-            if (player != null)
-            {
-                player.ModifySocialStatus(amount);
-            }
+            GameManager.Instance?.Player?.ModifySocialStatus(5);
+            GameManager.Instance?.AddKnowledgePoints(20);
         }
     }
 
     [System.Serializable]
     public class NPCData
     {
-        public string name;
+        public string name = string.Empty;
         public Vector3 position;
         public NPCFaction faction;
-        public string dialogueTree;
+        public string dialogueTree = string.Empty;
         public bool hasQuest;
-        public string questName;
+        public string questName = string.Empty;
         public UnityEngine.Events.UnityAction OnInteract;
     }
 }

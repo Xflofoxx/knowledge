@@ -4,18 +4,28 @@ using UnityEngine;
 
 namespace Knowledge.Game
 {
-    public class DiscoverySystem : MonoBehaviour
+    public sealed class DiscoverySystem : MonoBehaviour
     {
         public static DiscoverySystem Instance { get; private set; }
 
         [Header("Discovery Data")]
-        public List<DiscoveryRecipe> allRecipes = new();
-        public HashSet<string> discoveredItems = new();
-        public HashSet<string> unlockedTechnologies = new();
+        [SerializeField] private List<DiscoveryRecipe> allRecipes = new();
+        [SerializeField] private HashSet<string> discoveredItems = new();
+        [SerializeField] private HashSet<string> unlockedTechnologies = new();
+
+        public IReadOnlyCollection<string> DiscoveredItems => discoveredItems;
+        public IReadOnlyCollection<string> UnlockedTechnologies => unlockedTechnologies;
+        public int TotalRecipes => allRecipes.Count;
+        public int DiscoveredCount => discoveredItems.Count;
 
         private void Awake()
         {
-            if (Instance != null) return;
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             Instance = this;
             InitializeRecipes();
         }
@@ -24,29 +34,32 @@ namespace Knowledge.Game
         {
             allRecipes = new List<DiscoveryRecipe>
             {
-                new DiscoveryRecipe { inputs = new[] { "Legno", "Pietra" }, output = "Ascia", requiredKnowledge = 10 },
-                new DiscoveryRecipe { inputs = new[] { "Legno", "Osso" }, output = "Lancia", requiredKnowledge = 15 },
-                new DiscoveryRecipe { inputs = new[] { "Pietra", "Pietra" }, output = "Affilatore", requiredKnowledge = 5 },
-                new DiscoveryRecipe { inputs = new[] { "Legno" }, output = "Fuoco", requiredKnowledge = 20 },
-                new DiscoveryRecipe { inputs = new[] { "Fuoco", "Carne" }, output = "Carne Cotta", requiredKnowledge = 25 },
-                new DiscoveryRecipe { inputs = new[] { "Legno", "Legno" }, output = "Rifugio", requiredKnowledge = 30 },
-                new DiscoveryRecipe { inputs = new[] { "Rame", "Stagno" }, output = "Bronzo", requiredKnowledge = 50 },
-                new DiscoveryRecipe { inputs = new[] { "Bronzo", "Legno" }, output = "Spada Bronzo", requiredKnowledge = 60 },
-                new DiscoveryRecipe { inputs = new[] { "Ferro", "Carbone" }, output = "Acciaio", requiredKnowledge = 100 },
-                new DiscoveryRecipe { inputs = new[] { "Acciaio", "Legno" }, output = "Armatura", requiredKnowledge = 120 },
-                new DiscoveryRecipe { inputs = new[] { "Vetro", "Rame" }, output = "Lente", requiredKnowledge = 150 },
-                new DiscoveryRecipe { inputs = new[] { "Acciaio", "Vapore" }, output = "Motore Vapore", requiredKnowledge = 200 },
-                new DiscoveryRecipe { inputs = new[] { "Motore Vapore", "Metallo" }, output = "Treno", requiredKnowledge = 220 },
-                new DiscoveryRecipe { inputs = new[] { "Elettronica", "Plastica" }, output = "Computer", requiredKnowledge = 300 },
-                new DiscoveryRecipe { inputs = new[] { "Computer", "Metallo" }, output = "Robot", requiredKnowledge = 350 },
-                new DiscoveryRecipe { inputs = new[] { "Isotopi", "Metallo" }, output = "Razzo", requiredKnowledge = 400 },
-                new DiscoveryRecipe { inputs = new[] { "Razzo", "Isotopi" }, output = "Satellite", requiredKnowledge = 450 },
-                new DiscoveryRecipe { inputs = new[] { "Satellite", "Computer" }, output = "Stazione Spaziale", requiredKnowledge = 500 },
+                new() { inputs = new[] { "Legno", "Pietra" }, output = "Ascia", requiredKnowledge = 10 },
+                new() { inputs = new[] { "Legno", "Osso" }, output = "Lancia", requiredKnowledge = 15 },
+                new() { inputs = new[] { "Pietra", "Pietra" }, output = "Affilatore", requiredKnowledge = 5 },
+                new() { inputs = new[] { "Legno" }, output = "Fuoco", requiredKnowledge = 20 },
+                new() { inputs = new[] { "Fuoco", "Carne" }, output = "Carne Cotta", requiredKnowledge = 25 },
+                new() { inputs = new[] { "Legno", "Legno" }, output = "Rifugio", requiredKnowledge = 30 },
+                new() { inputs = new[] { "Rame", "Stagno" }, output = "Bronzo", requiredKnowledge = 50 },
+                new() { inputs = new[] { "Bronzo", "Legno" }, output = "Spada Bronzo", requiredKnowledge = 60 },
+                new() { inputs = new[] { "Ferro", "Carbone" }, output = "Acciaio", requiredKnowledge = 100 },
+                new() { inputs = new[] { "Acciaio", "Legno" }, output = "Armatura", requiredKnowledge = 120 },
+                new() { inputs = new[] { "Vetro", "Rame" }, output = "Lente", requiredKnowledge = 150 },
+                new() { inputs = new[] { "Acciaio", "Vapore" }, output = "Motore Vapore", requiredKnowledge = 200 },
+                new() { inputs = new[] { "Motore Vapore", "Metallo" }, output = "Treno", requiredKnowledge = 220 },
+                new() { inputs = new[] { "Elettronica", "Plastica" }, output = "Computer", requiredKnowledge = 300 },
+                new() { inputs = new[] { "Computer", "Metallo" }, output = "Robot", requiredKnowledge = 350 },
+                new() { inputs = new[] { "Isotopi", "Metallo" }, output = "Razzo", requiredKnowledge = 400 },
+                new() { inputs = new[] { "Razzo", "Isotopi" }, output = "Satellite", requiredKnowledge = 450 },
+                new() { inputs = new[] { "Satellite", "Computer" }, output = "Stazione Spaziale", requiredKnowledge = 500 },
             };
         }
 
         public DiscoveryResult TryCombine(string[] inputs)
         {
+            if (inputs == null || inputs.Length == 0)
+                return new DiscoveryResult { success = false, message = "No inputs provided." };
+
             var sortedInputs = inputs.OrderBy(i => i).ToArray();
 
             foreach (var recipe in allRecipes)
@@ -55,52 +68,69 @@ namespace Knowledge.Game
 
                 if (sortedInputs.SequenceEqual(recipeInputs))
                 {
-                    if (!discoveredItems.Contains(recipe.output))
-                    {
-                        if (GameManager.Instance.TotalKnowledgePoints >= recipe.requiredKnowledge)
-                        {
-                            discoveredItems.Add(recipe.output);
-                            GameManager.Instance.AddKnowledgePoints(recipe.requiredKnowledge);
-                            GameManager.Instance.DiscoveredItems.Add(recipe.output);
-                            return new DiscoveryResult { success = true, itemDiscovered = recipe.output };
-                        }
+                    if (discoveredItems.Contains(recipe.output))
+                        return new DiscoveryResult { success = false, message = $"{recipe.output} already discovered!" };
+
+                    int currentKnowledge = GameManager.Instance?.TotalKnowledgePoints ?? 0;
+                    if (currentKnowledge < recipe.requiredKnowledge)
                         return new DiscoveryResult { success = false, message = $"Not enough knowledge. Need {recipe.requiredKnowledge} KP." };
-                    }
-                    return new DiscoveryResult { success = false, message = $"{recipe.output} already discovered!" };
+
+                    discoveredItems.Add(recipe.output);
+                    GameManager.Instance?.AddKnowledgePoints(recipe.requiredKnowledge);
+                    GameManager.Instance?.DiscoveredItems.Add(recipe.output);
+                    
+                    return new DiscoveryResult { success = true, itemDiscovered = recipe.output };
                 }
             }
 
             return new DiscoveryResult { success = false, message = "No valid combination found." };
         }
 
-        public bool IsItemDiscovered(string itemName)
-        {
-            return discoveredItems.Contains(itemName);
-        }
+        public bool IsItemDiscovered(string itemName) => 
+            !string.IsNullOrEmpty(itemName) && discoveredItems.Contains(itemName);
 
         public List<DiscoveryRecipe> GetAvailableRecipes()
         {
-            return allRecipes.Where(r => !discoveredItems.Contains(r.output) && 
-                GameManager.Instance.TotalKnowledgePoints >= r.requiredKnowledge).ToList();
+            int currentKnowledge = GameManager.Instance?.TotalKnowledgePoints ?? 0;
+            return allRecipes
+                .Where(r => !discoveredItems.Contains(r.output) && currentKnowledge >= r.requiredKnowledge)
+                .ToList();
         }
 
-        public int GetTotalRecipesCount() => allRecipes.Count;
-        public int GetDiscoveredCount() => discoveredItems.Count;
+        public void UnlockTechnology(string technology)
+        {
+            if (!string.IsNullOrEmpty(technology))
+                unlockedTechnologies.Add(technology);
+        }
+
+        public bool IsTechnologyUnlocked(string technology) =>
+            !string.IsNullOrEmpty(technology) && unlockedTechnologies.Contains(technology);
     }
 
     [System.Serializable]
     public class DiscoveryRecipe
     {
-        public string[] inputs;
-        public string output;
+        public string[] inputs = Array.Empty<string>();
+        public string output = string.Empty;
         public int requiredKnowledge;
-        public string description;
+        public string description = string.Empty;
     }
 
-    public struct DiscoveryResult
+    public readonly struct DiscoveryResult
     {
-        public bool success;
-        public string itemDiscovered;
-        public string message;
+        public bool Success => success;
+        public string ItemDiscovered => itemDiscovered;
+        public string Message => message;
+
+        public readonly bool success;
+        public readonly string itemDiscovered;
+        public readonly string message;
+
+        public DiscoveryResult(bool success, string itemDiscovered = null, string message = null)
+        {
+            this.success = success;
+            this.itemDiscovered = itemDiscovered ?? string.Empty;
+            this.message = message ?? string.Empty;
+        }
     }
 }

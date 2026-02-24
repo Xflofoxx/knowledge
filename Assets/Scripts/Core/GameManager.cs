@@ -3,36 +3,50 @@ using UnityEngine;
 
 namespace Knowledge.Game
 {
-    public class GameManager : MonoBehaviour
+    public sealed class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
 
+        private const int MaxEras = 8;
+
         [Header("Game Settings")]
-        public bool gamePaused = false;
-        public float gameTime = 0f;
-        public int currentEra = 0;
+        [SerializeField] private bool gamePaused = false;
+        [SerializeField] private float gameTime = 0f;
+        [SerializeField] private int currentEra = 0;
 
         [Header("Managers")]
-        public PlayerController Player;
-        public DiscoverySystem DiscoverySystem;
-        public KnowledgeSystem KnowledgeSystem;
-        public EcosystemManager EcosystemManager;
-        public WeatherSystem WeatherSystem;
-        public NPCManager NPCManager;
-        public UIManager UIManager;
+        [SerializeField] private PlayerController player;
+        [SerializeField] private DiscoverySystem discoverySystem;
+        [SerializeField] private KnowledgeSystem knowledgeSystem;
+        [SerializeField] private EcosystemManager ecosystemManager;
+        [SerializeField] private WeatherSystem weatherSystem;
+        [SerializeField] private NPCManager npcManager;
+        [SerializeField] private UIManager uiManager;
 
         [Header("Game State")]
         public int TotalKnowledgePoints { get; private set; }
         public List<string> DiscoveredItems { get; } = new();
         public Dictionary<int, bool> UnlockedEras { get; } = new();
 
+        public PlayerController Player => player;
+        public DiscoverySystem DiscoverySystemRef => discoverySystem;
+        public KnowledgeSystem KnowledgeSystemRef => knowledgeSystem;
+        public EcosystemManager EcosystemManagerRef => ecosystemManager;
+        public WeatherSystem WeatherSystemRef => weatherSystem;
+        public NPCManager NPCManagerRef => npcManager;
+        public UIManager UIManagerRef => uiManager;
+        public bool IsPaused => gamePaused;
+        public float GameTime => gameTime;
+        public int CurrentEra => currentEra;
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (Instance != null)
             {
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
@@ -45,7 +59,7 @@ namespace Knowledge.Game
         private void InitializeGame()
         {
             UnlockedEras[0] = true;
-            for (int i = 1; i < 8; i++)
+            for (int i = 1; i < MaxEras; i++)
                 UnlockedEras[i] = false;
 
             Debug.Log("Knowledge - Game Initialized");
@@ -59,26 +73,34 @@ namespace Knowledge.Game
 
         public void AddKnowledgePoints(int amount)
         {
+            if (amount <= 0) return;
+            
             TotalKnowledgePoints += amount;
-            KnowledgeSystem?.OnKnowledgeGained(amount);
-            UIManager?.UpdateKnowledgeDisplay(TotalKnowledgePoints);
+            knowledgeSystem?.OnKnowledgeGained(amount);
+            uiManager?.UpdateKnowledgeDisplay(TotalKnowledgePoints);
         }
 
         public void UnlockEra(int eraIndex)
         {
-            if (eraIndex >= 0 && eraIndex < 8)
-            {
-                UnlockedEras[eraIndex] = true;
-                Debug.Log($"Era {eraIndex} unlocked!");
-            }
+            if (eraIndex is < 0 or >= MaxEras) return;
+            
+            UnlockedEras[eraIndex] = true;
+            Debug.Log($"Era {eraIndex} unlocked!");
         }
 
         public bool CanAccessEra(int eraIndex)
         {
-            return UnlockedEras.ContainsKey(eraIndex) && UnlockedEras[eraIndex];
+            return eraIndex >= 0 && eraIndex < MaxEras && 
+                   UnlockedEras.TryGetValue(eraIndex, out bool unlocked) && unlocked;
         }
 
-        public void PauseGame() => gamePaused = true;
-        public void ResumeGame() => gamePaused = false;
+        public void PauseGame() => SetPaused(true);
+        public void ResumeGame() => SetPaused(false);
+
+        private void SetPaused(bool paused)
+        {
+            gamePaused = paused;
+            Time.timeScale = paused ? 0f : 1f;
+        }
     }
 }

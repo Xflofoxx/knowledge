@@ -1,68 +1,83 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Knowledge.Game
 {
-    public class KnowledgeSystem : MonoBehaviour
+    public sealed class KnowledgeSystem : MonoBehaviour
     {
         public static KnowledgeSystem Instance { get; private set; }
 
         [Header("Knowledge Settings")]
-        public int baseKnowledgeGain = 10;
-        public float knowledgeMultiplier = 1f;
+        [SerializeField] private int baseKnowledgeGain = 10;
+        [SerializeField] private float knowledgeMultiplier = 1f;
 
         [Header("Knowledge Categories")]
-        public int natureKnowledge = 0;
-        public int technologyKnowledge = 0;
-        public int socialKnowledge = 0;
-        public int combatKnowledge = 0;
+        [SerializeField] private int natureKnowledge;
+        [SerializeField] private int technologyKnowledge;
+        [SerializeField] private int socialKnowledge;
+        [SerializeField] private int combatKnowledge;
 
         public int TotalKnowledge => natureKnowledge + technologyKnowledge + socialKnowledge + combatKnowledge;
+        public int NatureKnowledge => natureKnowledge;
+        public int TechnologyKnowledge => technologyKnowledge;
+        public int SocialKnowledge => socialKnowledge;
+        public int CombatKnowledge => combatKnowledge;
 
-        private Dictionary<string, float> observationKnowledge = new();
+        private readonly Dictionary<string, float> observationKnowledge = new();
 
         private void Awake()
         {
-            if (Instance != null) return;
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             Instance = this;
         }
 
         public void OnKnowledgeGained(int amount)
         {
+            if (amount <= 0) return;
+            
             int categorizedAmount = Mathf.RoundToInt(amount * knowledgeMultiplier);
-            GameManager.Instance.AddKnowledgePoints(categorizedAmount);
+            GameManager.Instance?.AddKnowledgePoints(categorizedAmount);
         }
 
         public void GainNatureKnowledge(int amount)
         {
+            if (amount <= 0) return;
             natureKnowledge += amount;
             OnKnowledgeGained(amount);
         }
 
         public void GainTechnologyKnowledge(int amount)
         {
+            if (amount <= 0) return;
             technologyKnowledge += amount;
             OnKnowledgeGained(amount);
         }
 
         public void GainSocialKnowledge(int amount)
         {
+            if (amount <= 0) return;
             socialKnowledge += amount;
             OnKnowledgeGained(amount);
         }
 
         public void GainCombatKnowledge(int amount)
         {
+            if (amount <= 0) return;
             combatKnowledge += amount;
             OnKnowledgeGained(amount);
         }
 
         public void StudyAnimal(string animalName, float duration)
         {
+            if (string.IsNullOrEmpty(animalName) || duration <= 0) return;
+
             if (!observationKnowledge.ContainsKey(animalName))
-            {
                 observationKnowledge[animalName] = 0;
-            }
 
             observationKnowledge[animalName] += duration;
 
@@ -76,18 +91,15 @@ namespace Knowledge.Game
 
         public void DiscoverPhenomenon(string phenomenonName)
         {
+            if (string.IsNullOrEmpty(phenomenonName)) return;
+            
             GainNatureKnowledge(10);
             Debug.Log($"Discovered: {phenomenonName}! +10 Nature Knowledge");
         }
 
-        public bool HasEnoughKnowledge(int amount)
-        {
-            return TotalKnowledge >= amount;
-        }
+        public bool HasEnoughKnowledge(int amount) => amount <= 0 || TotalKnowledge >= amount;
 
-        public string GetKnowledgeBreakdown()
-        {
-            return $"Nature: {natureKnowledge} | Tech: {technologyKnowledge} | Social: {socialKnowledge} | Combat: {combatKnowledge}";
-        }
+        public string GetKnowledgeBreakdown() => 
+            $"Nature: {natureKnowledge} | Tech: {technologyKnowledge} | Social: {socialKnowledge} | Combat: {combatKnowledge}";
     }
 }
