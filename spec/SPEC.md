@@ -327,6 +327,19 @@ Il gioco presenta un ecosistema variegato ispirato alla biodiversità terrestre.
 - **Audio:** Unity Audio System
 - **Salvataggio:** PlayerPrefs o sistema custom JSON
 
+### 10.1 Requisiti di Sistema
+
+| Componente | Minimo | Consigliato |
+|------------|--------|-------------|
+| **OS** | Windows 10 (64-bit) | Windows 10/11 (64-bit) |
+| **Processore** | Intel Core i5 / AMD Ryzen 5 | Intel Core i7 / AMD Ryzen 7 |
+| **Memoria RAM** | 4 GB | 8 GB |
+| **Memoria Video** | 2 GB | 4 GB |
+| **Spazio su disco** | 10 GB | 15 GB |
+| **Memoria massima allocabile** | 4 GB | 4 GB |
+
+**Nota:** L'opzione **"Memory Size"** in Unity Player Settings deve essere impostata a **4096 MB (4 GB)** per garantire stabilità su sistemi con quantità di RAM limitata.
+
 ---
 
 ## 11. Milestone di Sviluppo
