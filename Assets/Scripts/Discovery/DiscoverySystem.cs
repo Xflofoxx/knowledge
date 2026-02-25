@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -58,7 +59,7 @@ namespace Knowledge.Game
         public DiscoveryResult TryCombine(string[] inputs)
         {
             if (inputs == null || inputs.Length == 0)
-                return new DiscoveryResult { success = false, message = "No inputs provided." };
+                return new DiscoveryResult(false, null, "No inputs provided.");
 
             var sortedInputs = inputs.OrderBy(i => i).ToArray();
 
@@ -69,21 +70,21 @@ namespace Knowledge.Game
                 if (sortedInputs.SequenceEqual(recipeInputs))
                 {
                     if (discoveredItems.Contains(recipe.output))
-                        return new DiscoveryResult { success = false, message = $"{recipe.output} already discovered!" };
+                        return new DiscoveryResult(false, null, $"{recipe.output} already discovered!");
 
                     int currentKnowledge = GameManager.Instance?.TotalKnowledgePoints ?? 0;
                     if (currentKnowledge < recipe.requiredKnowledge)
-                        return new DiscoveryResult { success = false, message = $"Not enough knowledge. Need {recipe.requiredKnowledge} KP." };
+                        return new DiscoveryResult(false, null, $"Not enough knowledge. Need {recipe.requiredKnowledge} KP.");
 
                     discoveredItems.Add(recipe.output);
                     GameManager.Instance?.AddKnowledgePoints(recipe.requiredKnowledge);
                     GameManager.Instance?.DiscoveredItems.Add(recipe.output);
                     
-                    return new DiscoveryResult { success = true, itemDiscovered = recipe.output };
+                    return new DiscoveryResult(true, recipe.output);
                 }
             }
 
-            return new DiscoveryResult { success = false, message = "No valid combination found." };
+            return new DiscoveryResult(false, null, "No valid combination found.");
         }
 
         public bool IsItemDiscovered(string itemName) => 

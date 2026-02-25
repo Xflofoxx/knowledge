@@ -79,13 +79,15 @@ namespace Knowledge.Game
         public float Hunger => currentHunger;
         public float Thirst => currentThirst;
         public float Happiness => currentHappiness;
-        public float MaxHealth => maxHealth;
-        public float MaxEnergy => maxEnergy;
-        public float MaxHunger => maxHunger;
-        public float MaxThirst => maxThirst;
-        public float MaxHappiness => maxHappiness;
-        public int Level => level;
-        public int SocialStatus => socialStatus;
+        public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+        public float SprintSpeed { get => sprintSpeed; set => sprintSpeed = value; }
+        public float MaxHealth { get => maxHealth; set => maxHealth = value; }
+        public float MaxEnergy { get => maxEnergy; set => maxEnergy = value; }
+        public float MaxHunger { get => maxHunger; set => maxHunger = value; }
+        public float MaxThirst { get => maxThirst; set => maxThirst = value; }
+        public float MaxHappiness { get => maxHappiness; set => maxHappiness = value; }
+        public int Level { get => level; set => level = value; }
+        public int SocialStatus { get => socialStatus; set => socialStatus = Mathf.Clamp(value, MinSocialStatus, MaxSocialStatus); }
         public Gender Gender => gender;
         public int Age => age;
         #endregion

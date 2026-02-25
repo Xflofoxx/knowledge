@@ -23,6 +23,7 @@ namespace Knowledge.Game
         [SerializeField] private Text knowledgePointsText;
         [SerializeField] private Text levelText;
         [SerializeField] private Text eraText;
+        public Text KnowledgePointsText => knowledgePointsText;
 
         [Header("Panels")]
         [SerializeField] private GameObject inventoryPanel;
@@ -30,6 +31,11 @@ namespace Knowledge.Game
         [SerializeField] private GameObject pauseMenu;
         [SerializeField] private GameObject dialogPanel;
         [SerializeField] private GameObject mapPanel;
+        public GameObject InventoryPanel => inventoryPanel;
+        public GameObject CraftingPanel => craftingPanel;
+        public GameObject PauseMenu => pauseMenu;
+        public GameObject DialogPanel => dialogPanel;
+        public GameObject MapPanel => mapPanel;
 
         [Header("Info Display")]
         [SerializeField] private Text weatherText;
@@ -151,7 +157,7 @@ namespace Knowledge.Game
             {
                 bool isActive = !pauseMenu.activeSelf;
                 pauseMenu.SetActive(isActive);
-                GameManager.Instance.IsPaused = isActive;
+                GameManager.Instance.SetPaused(isActive);
             }
         }
 

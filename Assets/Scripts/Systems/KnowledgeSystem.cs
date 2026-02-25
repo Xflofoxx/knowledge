@@ -16,6 +16,10 @@ namespace Knowledge.Game
         [SerializeField] private int technologyKnowledge;
         [SerializeField] private int socialKnowledge;
         [SerializeField] private int combatKnowledge;
+        public int NatureKnowledgeField { get => natureKnowledge; set => natureKnowledge = value; }
+        public int TechnologyKnowledgeField { get => technologyKnowledge; set => technologyKnowledge = value; }
+        public int SocialKnowledgeField { get => socialKnowledge; set => socialKnowledge = value; }
+        public int CombatKnowledgeField { get => combatKnowledge; set => combatKnowledge = value; }
 
         public int TotalKnowledge => natureKnowledge + technologyKnowledge + socialKnowledge + combatKnowledge;
         public int NatureKnowledge => natureKnowledge;

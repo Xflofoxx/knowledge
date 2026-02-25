@@ -13,6 +13,7 @@ namespace Knowledge.Game
         [SerializeField] private bool gamePaused = false;
         [SerializeField] private float gameTime = 0f;
         [SerializeField] private int currentEra = 0;
+        public bool IsGamePaused => gamePaused;
 
         [Header("Managers")]
         [SerializeField] private PlayerController player;
@@ -96,8 +97,7 @@ namespace Knowledge.Game
 
         public void PauseGame() => SetPaused(true);
         public void ResumeGame() => SetPaused(false);
-
-        private void SetPaused(bool paused)
+        public void SetPaused(bool paused)
         {
             gamePaused = paused;
             Time.timeScale = paused ? 0f : 1f;

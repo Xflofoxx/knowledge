@@ -39,6 +39,7 @@ namespace Knowledge.Game
 
         [Header("Weather Settings")]
         [SerializeField] private WeatherType currentWeather = WeatherType.Clear;
+        public WeatherType CurrentWeatherField { get => currentWeather; set => currentWeather = value; }
         [SerializeField] private DisasterType currentDisaster = DisasterType.None;
         
         [Header("Weather Effects")]
