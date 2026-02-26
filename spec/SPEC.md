@@ -11,9 +11,25 @@ Il gioco si basa sulla **scoperta** - il giocatore accompagna l'evoluzione dell'
 
 ---
 
-## 2. Meccaniche Principali
+## 2. Moduli del Gioco
 
-### 2.1 Concetto Centrale: La Scoperta
+| Modulo | Descrizione | File Spec |
+|--------|-------------|-----------|
+| Core | Game manager, save/load, settings | spec/core/ |
+| Player | Player controller, inventory, combat | spec/player/ |
+| Discovery | Discovery system, crafting, resources | spec/discovery/ |
+| Environment | Weather, terrain, zones, map | spec/environment/ |
+| Systems | Knowledge, progression, skills | spec/systems/ |
+| UI | HUD, menus, notifications | spec/ui/ |
+| AI | NPCs, dialogue, quests, shops | spec/ai/ |
+
+Vedi **spec/modulename/** per le specifiche dettagliate di ogni feature.
+
+---
+
+## 3. Meccaniche Principali
+
+### 3.1 Concetto Centrale: La Scoperta
 
 Il gioco ruota attorno al concetto di **Knowledge** (Conoscenza). Ogni oggetto scoperto, ogni combinazione riuscita, ogni tecnologia sbloccata aumenta il patrimonio di conoscenza del giocatore.
 
