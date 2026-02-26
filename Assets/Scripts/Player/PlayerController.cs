@@ -211,5 +211,31 @@ namespace Knowledge.Game
         {
             socialStatus = Mathf.Clamp(socialStatus + amount, MinSocialStatus, MaxSocialStatus);
         }
+
+        // Stats modification helpers for inventory items, UI, etc.
+        public void ModifyHealth(float amount)
+        {
+            currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
+        }
+
+        public void ModifyEnergy(float amount)
+        {
+            currentEnergy = Mathf.Clamp(currentEnergy + amount, 0f, maxEnergy);
+        }
+
+        public void ModifyHunger(float amount)
+        {
+            currentHunger = Mathf.Clamp(currentHunger + amount, 0f, maxHunger);
+        }
+
+        public void ModifyThirst(float amount)
+        {
+            currentThirst = Mathf.Clamp(currentThirst + amount, 0f, maxThirst);
+        }
+
+        public void ModifyHappiness(float amount)
+        {
+            currentHappiness = Mathf.Clamp(currentHappiness + amount, 0f, maxHappiness);
+        }
     }
 }
