@@ -83,3 +83,10 @@ crashlytics-build.properties
 *.compute
 */.DS_Store
 Thumbs.db
+
+# Unity generated
+*.csproj
+*.slnx
+Packages/
+.vsconfig
+nul

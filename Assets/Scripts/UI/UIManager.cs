@@ -23,7 +23,7 @@ namespace Knowledge.Game
         [SerializeField] private Text knowledgePointsText;
         [SerializeField] private Text levelText;
         [SerializeField] private Text eraText;
-        public Text KnowledgePointsText => knowledgePointsText;
+        public Text KnowledgePointsText { get => knowledgePointsText; set => knowledgePointsText = value; }
 
         [Header("Panels")]
         [SerializeField] private GameObject inventoryPanel;
@@ -31,11 +31,11 @@ namespace Knowledge.Game
         [SerializeField] private GameObject pauseMenu;
         [SerializeField] private GameObject dialogPanel;
         [SerializeField] private GameObject mapPanel;
-        public GameObject InventoryPanel => inventoryPanel;
-        public GameObject CraftingPanel => craftingPanel;
-        public GameObject PauseMenu => pauseMenu;
-        public GameObject DialogPanel => dialogPanel;
-        public GameObject MapPanel => mapPanel;
+        public GameObject InventoryPanel { get => inventoryPanel; set => inventoryPanel = value; }
+        public GameObject CraftingPanel { get => craftingPanel; set => craftingPanel = value; }
+        public GameObject PauseMenu { get => pauseMenu; set => pauseMenu = value; }
+        public GameObject DialogPanel { get => dialogPanel; set => dialogPanel = value; }
+        public GameObject MapPanel { get => mapPanel; set => mapPanel = value; }
 
         [Header("Info Display")]
         [SerializeField] private Text weatherText;

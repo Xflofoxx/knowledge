@@ -13,8 +13,8 @@ namespace Knowledge.Game
         private const float DefaultMaxHunger = 100f;
         private const float DefaultMaxThirst = 100f;
         private const float DefaultMaxHappiness = 100f;
-        private const float BaseMoveSpeed = 5f;
-        private const float SprintSpeed = 8f;
+        private const float DefaultMoveSpeed = 5f;
+        private const float DefaultSprintSpeed = 8f;
         private const float RotationSpeed = 10f;
         private const float Gravity = -9.81f;
         private const float HungerDrain = 0.5f;
@@ -33,8 +33,8 @@ namespace Knowledge.Game
         [SerializeField] [Range(0.5f, 2f)] private float bodyWidth = 1f;
 
         [Header("Movement")]
-        [SerializeField] private float moveSpeed = BaseMoveSpeed;
-        [SerializeField] private float sprintSpeed = SprintSpeed;
+        [SerializeField] private float moveSpeed = DefaultMoveSpeed;
+        [SerializeField] private float sprintSpeed = DefaultSprintSpeed;
         [SerializeField] private float rotationSpeed = RotationSpeed;
         [SerializeField] private float gravity = Gravity;
 
