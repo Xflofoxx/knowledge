@@ -116,7 +116,12 @@ Required test coverage:
   - Knowledge points system
   - Save/Load with JSON serialization
   - Scene management
-- Unit tests for GameManager
+- Save/Load System implementation
+  - Multiple save slots
+  - Auto-save functionality
+  - JSON serialization for game data
+  - Player, Discovery, World data persistence
+- Unit tests for GameManager and SaveLoadSystem
 - Gitignore and gitattributes aligned for Unity project
 
 #### Transformations
