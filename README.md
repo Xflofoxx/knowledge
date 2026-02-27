@@ -103,6 +103,36 @@ Required test coverage:
 - All public methods must have unit tests
 - Integration tests for system interactions
 
+## Release Notes
+
+### v0.1.0 - Reboot (2026-02-27)
+
+#### Added
+- Project structure specification (`spec/SPEC-STRUCTURE.md`)
+- Core Game Manager implementation
+  - Singleton pattern with DontDestroyOnLoad
+  - Pause/Resume game state
+  - Time scale control (0.1x - 2x)
+  - Knowledge points system
+  - Save/Load with JSON serialization
+  - Scene management
+- Unit tests for GameManager
+- Gitignore and gitattributes aligned for Unity project
+
+#### Transformations
+- gh-pages branch converted to docs folder in master
+
+---
+
+### v0.0.1 - Initial (2016-02-26)
+
+#### Added
+- Initial project setup with specifications
+- Documentation structure with modular specs
+- GitHub Pages documentation site
+
+---
+
 ## Built With
 
 - [Unity](https://unity.com/) - Game Engine
