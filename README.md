@@ -121,7 +121,13 @@ Required test coverage:
   - Auto-save functionality
   - JSON serialization for game data
   - Player, Discovery, World data persistence
-- Unit tests for GameManager and SaveLoadSystem
+- Settings Manager implementation
+  - Graphics settings (resolution, quality, vsync)
+  - Audio settings (master, music, sfx, dialogue)
+  - Control settings (key bindings)
+  - Gameplay settings (difficulty, UI scale)
+  - PlayerPrefs persistence
+- Unit tests for GameManager, SaveLoadSystem, SettingsManager
 - Gitignore and gitattributes aligned for Unity project
 
 #### Transformations
