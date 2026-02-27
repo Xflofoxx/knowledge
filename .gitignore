@@ -1,92 +1,37 @@
-# Created by https://www.gitignore.io
-
-### WebStorm ###
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
-
-*.iml
-
-## Directory-based project format:
+# IDE
 .idea/
-# if you remove the above rule, at least ignore the following:
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
-# User-specific stuff:
-# .idea/workspace.xml
-# .idea/tasks.xml
-# .idea/dictionaries
+# Node (se necessario)
+node_modules/
 
-# Sensitive or high-churn files:
-# .idea/dataSources.ids
-# .idea/dataSources.xml
-# .idea/sqlDataSources.xml
-# .idea/dynamic.xml
-# .idea/uiDesigner.xml
+# Environment
+.env
 
-# Gradle:
-# .idea/gradle.xml
-# .idea/libraries
-
-# Mongo Explorer plugin:
-# .idea/mongoSettings.xml
-
-## File-based project format:
-*.ipr
-*.iws
-
-## Plugin-specific files:
-
-# IntelliJ
-/out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# JIRA plugin
-atlassian-ide-plugin.xml
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-
-# Ignore npm modules
-/node_modules
-
-# Ignore environment files
-.env 
-
-# Unity
+# Unity (se presente)
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
-/[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Mm]emoryCaptures/
 /[Pp]rojectSettings/
 *.unitypackage
-*.asset
-*.mat
-*.prefab
-*.controller
-*.anim
-*.sprite
-*.png
-*.jpg
-*.psd
-*.fbx
-*.obj
-*.wav
-*.mp3
-*.ogg
-*.controller
-*.compute
-*/.DS_Store
-Thumbs.db
+Packages/
 
-# Unity generated
+# Build outputs
+dist/
+build/
+*.log
+
+# Output Unity
 *.csproj
 *.slnx
-Packages/
 .vsconfig
 nul
