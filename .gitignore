@@ -30,6 +30,9 @@ dist/
 build/
 *.log
 
+# .gitkeep files
+.gitkeep
+
 # Output Unity
 *.csproj
 *.slnx
