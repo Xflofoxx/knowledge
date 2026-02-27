@@ -9,7 +9,21 @@ This document describes the development workflow for the Knowledge Unity project
 
 ## 1. Development Cycle
 
-### 1.1 Feature Development
+### 1.1 Task Implementation Process
+
+For each issue/task that becomes one or more implementation:
+
+1. **Check if spec exists**: Verify spec file is present in `spec/`
+2. **Create branch**: `feature/spec-id-description` or `fix/spec-id-description`
+3. **Write tests**: Define expected behavior in `Assets/Tests/`
+4. **Implement**: Write code to pass tests
+5. **Run tests**: Verify all pass
+6. **Commit**: Use conventional commits
+7. **Push**: Push to remote
+8. **Merge**: Merge to master (or main)
+9. **Cleanup**: Delete feature branch
+
+### 1.2 Feature Development
 
 1. **Create branch**: `feature/feature-name`
 2. **Write tests**: Define expected behavior
@@ -19,7 +33,7 @@ This document describes the development workflow for the Knowledge Unity project
 6. **Push**: Push to remote
 7. **Pull Request**: Merge to main
 
-### 1.2 Bug Fix
+### 1.3 Bug Fix
 
 1. **Create branch**: `fix/bug-description`
 2. **Reproduce**: Write test that fails
